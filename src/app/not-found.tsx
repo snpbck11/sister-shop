@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-[calc(100vh-var(--header-height))] flex items-center justify-center p-4 mx-auto">
+    <div className="min-h-screen flex items-center justify-center p-4 mx-auto">
       <div className="text-center max-w-2xl mx-auto">
         <h1 className="text-9xl font-bold tracking-wider mb-4 bg-linear-to-r from-foreground to-foreground/50 bg-clip-text text-transparent animate-pulse">
           404

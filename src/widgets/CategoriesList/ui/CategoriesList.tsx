@@ -17,7 +17,6 @@ export function CategoriesList() {
               alt={category.title}
               width={90}
               height={90}
-              quality={100}
               sizes="90px"
             />
             <p className="text-sm sm:text-base whitespace-nowrap">{category.title}</p>

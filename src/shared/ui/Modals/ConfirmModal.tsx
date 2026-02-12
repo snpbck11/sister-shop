@@ -8,11 +8,9 @@ interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
   description?: string;
-
   confirmText?: string;
   cancelText?: string;
   confirmVariant?: "primary" | "secondary" | "danger";
-
   onConfirm: () => Promise<unknown>;
   onClose: () => void;
 }
@@ -56,16 +54,24 @@ export function ConfirmModal({
     <Modal isOpen={isOpen} onClose={handleClose}>
       <div className="p-2">
         <h2 className="text-2xl font-semibold">{title}</h2>
-
         {description && <p className="mt-2 text-lg text-muted-foreground">{description}</p>}
-
         {error && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
-
         <div className="flex gap-3 pt-4 justify-end">
-          <Button type="button" variant="secondary" onClick={handleClose} disabled={loading}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={handleClose}
+            disabled={loading}>
             {cancelText}
           </Button>
-          <Button type="button" variant={confirmVariant} onClick={handleConfirm} disabled={loading} isLoading={loading}>
+          <Button
+            type="button"
+            size="sm"
+            variant={confirmVariant}
+            onClick={handleConfirm}
+            disabled={loading}
+            isLoading={loading}>
             {confirmText}
           </Button>
         </div>

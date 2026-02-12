@@ -9,7 +9,9 @@ export interface ICategory {
 
 export interface ICreateCategoryData extends Pick<ICategory, "name" | "description" | "slug"> {}
 
-export type TUdpatebleFields = keyof Pick<ICategory, "name" | "description">
+export interface ICreateCategoryDTO extends Omit<ICreateCategoryData, "slug"> {}
+
+export type TCategoryUdpatebleFields = keyof Pick<ICategory, "name" | "description">;
 
 export interface IUpdateCategoryData extends Partial<ICreateCategoryData> {
   id: number;

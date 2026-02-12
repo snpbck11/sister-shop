@@ -1,133 +1,217 @@
-import { upsertCollection } from "@/entities/collection/model/service";
-import { createProduct } from "../src/shared/lib/products";
+import { PrismaClient } from "@prisma/client";
 
-// Данные коллекций с названиями и описаниями на русском
-const seedCollections = [
-  { slug: "all-designs", name: "Все товары", description: "Украшения, которые меняют образ." },
-  {
-    slug: "chokers",
-    name: "Чокеры",
-    description: "Акцент, который говорит за тебя. Украшения, созданные, чтобы усилить твой стиль.",
-  },
-  {
-    slug: "bracers",
-    name: "Браслеты",
-    description: "Изысканные браслеты ручной работы",
-  },
-  {
-    slug: "gothic",
-    name: "Готика",
-    description: "Темные аксессуары в готическом стиле",
-  },
-  {
-    slug: "minimalist",
-    name: "Минимализм",
-    description: "Лаконичные украшения для повседневного ношения",
-  },
-  {
-    slug: "punk",
-    name: "Панк",
-    description: "Дерзкие украшения в панк-стиле",
-  },
-  {
-    slug: "victorian",
-    name: "Викторианский стиль",
-    description: "Элегантные украшения, вдохновленные викторианской эпохой",
-  },
-  {
-    slug: "vintage",
-    name: "Винтаж",
-    description: "Винтажные аксессуары с налетом старины",
-  },
-  {
-    slug: "couple",
-    name: "Парные украшения",
-    description: "Комплекты украшений для влюбленных",
-  },
-];
-
-// Тестовые данные с существующими изображениями
-// Каждый товар может быть в нескольких коллекциях
-const seedProducts = [
-  {
-    slug: "gothic-cross-choker",
-    title: "Готический чокер с крестом",
-    description: "Элегантный готический чокер из черной кожи с серебряным крестом",
-    price: 1500,
-    image: "/chokers.png",
-    hoverImage: "/best.jpg",
-    gallery: ["/chokers.png", "/best.jpg", "/chokers.png", "/best.jpg", "/chokers.png"],
-    collections: ["chokers", "gothic"],
-  },
-  {
-    slug: "minimalist-choker",
-    title: "Минималистичный чокер",
-    description: "Простой и стильный минималистичный чокер из черного вельвета",
-    price: 1200,
-    image: "/best.jpg",
-    hoverImage: "/array.jpg",
-    gallery: ["/best.jpg", "/array.jpg", "/best.jpg", "/array.jpg", "/best.jpg"],
-    collections: ["chokers", "minimalist"],
-  },
-  {
-    slug: "leather-spiked-bracelet",
-    title: "Кожаный браслет с шипами",
-    description: "Брутальный кожаный браслет с металлическими шипами",
-    price: 800,
-    image: "/braslets.jpg",
-    hoverImage: "/best.jpg",
-    gallery: ["/braslets.jpg", "/best.jpg", "/braslets.jpg", "/best.jpg", "/braslets.jpg"],
-    collections: ["bracers", "punk"],
-  },
-  {
-    slug: "victorian-choker",
-    title: "Викторианский чокер",
-    description: "Изысканный чокер в викторианском стиле",
-    price: 2500,
-    image: "/array.jpg",
-    hoverImage: "/photo_2026-01-15_06-33-45.jpg",
-    gallery: [
-      "/array.jpg",
-      "/photo_2026-01-15_06-33-45.jpg",
-      "/array.jpg",
-      "/photo_2026-01-15_06-33-45.jpg",
-      "/array.jpg",
-    ],
-    collections: ["chokers", "victorian", "vintage"],
-  },
-  {
-    slug: "couple-chokers",
-    title: "Парные чокеры",
-    description: "Стильные парные чокеры для влюбленных",
-    price: 3000,
-    image: "/parnie.png",
-    hoverImage: "/array.jpg",
-    gallery: ["/parnie.png", "/array.jpg", "/parnie.png", "/array.jpg", "/parnie.png"],
-    collections: ["chokers", "couple"],
-  },
-];
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log("🌱 Начинаем заполнение базы данных...");
 
-  // Сначала создаем коллекции с названиями и описаниями
-  console.log("\n📁 Creating collections...");
-  for (const collection of seedCollections) {
-    const created = await upsertCollection(collection);
-    console.log(`✅ Created collection: ${created.name} (${created.slug})`);
-  }
+  // Очистка существующих данных
+  await prisma.productCollection.deleteMany();
+  await prisma.productSize.deleteMany();
+  await prisma.product.deleteMany();
+  await prisma.collection.deleteMany();
+  await prisma.category.deleteMany();
+  await prisma.productType.deleteMany();
 
-  // Затем создаем товары
-  console.log("\n📦 Creating products...");
-  for (const product of seedProducts) {
-    const created = await createProduct(product);
-    console.log(`✅ Created product: ${created.title} (ID: ${created.id})`);
-  }
+  // Создание типов товаров
+  console.log("📦 Создаём типы товаров...");
+  const chokerType = await prisma.productType.create({
+    data: { name: "Чокер" },
+  });
 
-  console.log("\n🎉 Database seeded successfully!");
+  const braceletType = await prisma.productType.create({
+    data: { name: "Браслет" },
+  });
+
+  // Создание категорий
+  console.log("📁 Создаём категории...");
+  const category1 = await prisma.category.create({
+    data: {
+      slug: "elegance",
+      name: "Элегантные",
+      description: "Изысканные украшения для особых случаев",
+    },
+  });
+
+  const category2 = await prisma.category.create({
+    data: {
+      slug: "casual",
+      name: "Повседневные",
+      description: "Стильные украшения на каждый день",
+    },
+  });
+
+  // Создание коллекций
+  console.log("✨ Создаём коллекции...");
+  const collection1 = await prisma.collection.create({
+    data: {
+      slug: "vesna",
+      name: "Весна 2024",
+      description: "Весенняя коллекция свежих и ярких украшений",
+      image: "https://placehold.co/600x400/FFB6C1/white?text=Spring+2024",
+    },
+  });
+
+  const collection2 = await prisma.collection.create({
+    data: {
+      slug: "classic",
+      name: "Классика",
+      description: "Вечные украшения, которые никогда не выходят из моды",
+      image: "https://placehold.co/600x400/D8BFD8/white?text=Classic",
+    },
+  });
+
+  // Создание товаров
+  console.log("💎 Создаём товары...");
+
+  // Товар 1: Чокер "Розовый рассвет"
+  await prisma.product.create({
+    data: {
+      slug: "pink-dawn-choker",
+      title: "Чокер 'Розовый рассвет'",
+      description: "Нежный чокер с розовыми бусинами и жемчугом",
+      image: "https://placehold.co/800x800/FFB6C1/white?text=Pink+Dawn",
+      hoverImage: "https://placehold.co/800x800/FFC0CB/white?text=Pink+Dawn+Hover",
+      gallery: [
+        "https://placehold.co/800x800/FFB6C1/white?text=Gallery+1",
+        "https://placehold.co/800x800/FFC0CB/white?text=Gallery+2",
+      ],
+      typeId: chokerType.id,
+      categoryId: category1.id,
+      sizes: {
+        create: [
+          { name: "S", description: "35-36 см", price: 2500 },
+          { name: "M", description: "37-38 см", price: 2500 },
+        ],
+      },
+      collections: {
+        create: [
+          { collectionId: collection1.id },
+          { collectionId: collection2.id },
+        ],
+      },
+    },
+  });
+
+  // Товар 2: Браслет "Лунный свет"
+  await prisma.product.create({
+    data: {
+      slug: "moonlight-bracelet",
+      title: "Браслет 'Лунный свет'",
+      description: "Элегантный браслет с лунными камнями",
+      image: "https://placehold.co/800x800/E6E6FA/white?text=Moonlight",
+      hoverImage: "https://placehold.co/800x800/D8BFD8/white?text=Moonlight+Hover",
+      gallery: [
+        "https://placehold.co/800x800/E6E6FA/white?text=Gallery+1",
+        "https://placehold.co/800x800/DDA0DD/white?text=Gallery+2",
+      ],
+      typeId: braceletType.id,
+      categoryId: category1.id,
+      sizes: {
+        create: [
+          { name: "S", description: "16-17 см", price: 3000 },
+          { name: "M", description: "18-19 см", price: 3000 },
+          { name: "L", description: "20-21 см", price: 3200 },
+        ],
+      },
+      collections: {
+        create: [{ collectionId: collection2.id }],
+      },
+    },
+  });
+
+  // Товар 3: Чокер "Звездная ночь"
+  await prisma.product.create({
+    data: {
+      slug: "starry-night-choker",
+      title: "Чокер 'Звездная ночь'",
+      description: "Темный чокер с серебристыми звездами",
+      image: "https://placehold.co/800x800/191970/white?text=Starry+Night",
+      hoverImage: "https://placehold.co/800x800/000080/white?text=Starry+Night+Hover",
+      gallery: [
+        "https://placehold.co/800x800/191970/white?text=Gallery+1",
+        "https://placehold.co/800x800/4169E1/white?text=Gallery+2",
+      ],
+      typeId: chokerType.id,
+      categoryId: category2.id,
+      sizes: {
+        create: [
+          { name: "S", description: "35-36 см", price: 2800 },
+          { name: "M", description: "37-38 см", price: 2800 },
+        ],
+      },
+      collections: {
+        create: [{ collectionId: collection1.id }],
+      },
+    },
+  });
+
+  // Товар 4: Браслет "Солнечный луч"
+  await prisma.product.create({
+    data: {
+      slug: "sunbeam-bracelet",
+      title: "Браслет 'Солнечный луч'",
+      description: "Яркий браслет с золотистыми элементами",
+      image: "https://placehold.co/800x800/FFD700/white?text=Sunbeam",
+      hoverImage: "https://placehold.co/800x800/FFA500/white?text=Sunbeam+Hover",
+      gallery: [
+        "https://placehold.co/800x800/FFD700/white?text=Gallery+1",
+        "https://placehold.co/800x800/FFAA00/white?text=Gallery+2",
+        "https://placehold.co/800x800/FF8C00/white?text=Gallery+3",
+      ],
+      typeId: braceletType.id,
+      categoryId: category2.id,
+      sizes: {
+        create: [
+          { name: "S", description: "16-17 см", price: 2700 },
+          { name: "M", description: "18-19 см", price: 2700 },
+        ],
+      },
+      collections: {
+        create: [
+          { collectionId: collection1.id },
+          { collectionId: collection2.id },
+        ],
+      },
+    },
+  });
+
+  // Товар 5: Чокер "Морская волна"
+  await prisma.product.create({
+    data: {
+      slug: "sea-wave-choker",
+      title: "Чокер 'Морская волна'",
+      description: "Освежающий чокер в морских тонах",
+      image: "https://placehold.co/800x800/00CED1/white?text=Sea+Wave",
+      hoverImage: "https://placehold.co/800x800/20B2AA/white?text=Sea+Wave+Hover",
+      gallery: [
+        "https://placehold.co/800x800/00CED1/white?text=Gallery+1",
+        "https://placehold.co/800x800/48D1CC/white?text=Gallery+2",
+      ],
+      typeId: chokerType.id,
+      categoryId: category1.id,
+      sizes: {
+        create: [
+          { name: "S", description: "35-36 см", price: 2600 },
+          { name: "M", description: "37-38 см", price: 2600 },
+          { name: "L", description: "39-40 см", price: 2800 },
+        ],
+      },
+      collections: {
+        create: [{ collectionId: collection1.id }],
+      },
+    },
+  });
+
+  console.log("База заполнена!");
+
 }
 
-main().catch((e) => {
-  console.error("❌ Error seeding database:", e);
-  process.exit(1);
-});
+main()
+  .catch((e) => {
+    console.error("Ошибка при заполнении базы:", e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

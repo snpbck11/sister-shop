@@ -3,22 +3,36 @@
 :root {
   --background: #ffffff;
   --foreground: #000000;
+
   --golden: #917549;
   --silver: #808080;
-  --header-height: 50px;
+  --error: theme(colors.red.500);
+
+  --admin-background: theme(colors.gray.100);
+  --admin-sidebar-background: #ffffff;
+  --admin-border: theme(colors.gray.200);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-golden: var(--golden);
   --color-silver: var(--silver);
+  --color-error: var(--error);
+
+  --color-admin-background: var(--admin-background);
+  --color-admin-sidebar-background: var(--admin-sidebar-background);
+  --color-admin-border: var(--admin-border);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #000000;
     --foreground: #ffffff;
+    --admin-background: theme(colors.gray.900);
+    --admin-sidebar-background: theme(colors.gray.800);
+    --admin-border: theme(colors.gray.700);
   }
 }
 
@@ -39,4 +53,14 @@ body:has(.hide-overflow) {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.no-number-arrows::-webkit-outer-spin-button,
+.no-number-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-number-arrows[type="number"] {
+  -moz-appearance: textfield;
 }

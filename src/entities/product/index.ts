@@ -1,15 +1,15 @@
 export { ProductCard } from "./ui/ProductCard";
 export { ProductGallery } from "./ui/ProductGallery";
 
-export {
-  createProduct,
-  deleteProduct,
-  getProductBySlug,
-  getProducts,
-  getRecommendedProducts,
-  updateProduct
-} from "./api/productApi";
+export { createProduct, deleteProduct, patchProduct } from "./api/client";
 
-export type { ICreateProductData, IUpdateProductData } from "./api/productApi";
-export type { IProduct, IProductWithRelations } from "./model/types";
+export type {
+  IProduct,
+  IProductWithRelations,
+  IUpdateProductData,
+  TProductUpdatebleFields
+} from "./model/types";
+
+export { createProductSchema, updateProductSchema } from "./model/schema";
+export type { TCreateProductInput, TUpdateProductInput } from "./model/schema";
 

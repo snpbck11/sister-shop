@@ -7,26 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model ProductType {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+
+  @@map("product_types")
+}
+
 model Product {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
-  title       String
-  description String?
-  price       Int
-  image       String
-  hoverImage  String   @map("hover_image")
-  gallery     String[] @default([])
+  id          Int         @id @default(autoincrement())
+  slug        String      @unique
+  title       String   
+  description String?   
+  image       String   
+  hoverImage  String      @map("hover_image")
+  gallery     String[]    @default([])
 
-  categoryId  Int?     @map("category_id")
-  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  typeId      Int         @map("type_id")
+  type        ProductType @relation(fields: [typeId], references: [id], onDelete: Restrict)
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  categoryId  Int         @map("category_id")
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   collections ProductCollection[]
+  sizes       ProductSize[]
+
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
 
   @@map("products")
   @@index([categoryId])
+}
+
+model ProductSize {
+  id          Int     @id @default(autoincrement())
+  productId   Int     @map("product_id")
+  name        String 
+  description String?
+  price       Int    
+
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_sizes")
+  @@index([productId])
 }
 
 model Category {
@@ -48,8 +72,12 @@ model Collection {
   slug        String   @unique
   name        String
   description String
+  image       String
 
   products ProductCollection[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("collections")
 }
