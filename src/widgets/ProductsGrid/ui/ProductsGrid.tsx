@@ -1,7 +1,7 @@
 "use client";
 
-import { ProductCard } from "@/entities/product";
-import { IProduct } from "@/entities/product/model/types";
+import { IProduct, ProductCard } from "@/entities/product";
+import { IProductType } from "@/entities/product-type";
 import { cn } from "@/shared/lib/cn";
 import { Button, Drawer, Radio } from "@/shared/ui";
 import { motion } from "framer-motion";
@@ -10,9 +10,10 @@ import { useMemo, useState } from "react";
 
 interface IProductsGridProps {
   products: IProduct[];
+  types: IProductType[];
 }
 
-type FilterType = "all" | "bracers" | "chokers";
+type TFilterType = "all" | number;
 
 const iconClass = (isActive: boolean) =>
   cn(
@@ -20,24 +21,16 @@ const iconClass = (isActive: boolean) =>
     isActive ? "text-black dark:text-white" : "text-gray-400 dark:text-gray-600",
   );
 
-const containerVariants = {
-  animate: {
-    transition: {
-      staggerChildren: 0.04,
-    },
-  },
-};
-
-export function ProductsGrid({ products }: IProductsGridProps) {
+export function ProductsGrid({ products, types }: IProductsGridProps) {
   const [gridMode, setGridMode] = useState<"compact" | "wide">("wide");
-  const [filter, setFilter] = useState<FilterType>("all");
-  const [tempFilter, setTempFilter] = useState<FilterType>("all");
+  const [filter, setFilter] = useState<TFilterType>("all");
+  const [tempFilter, setTempFilter] = useState<TFilterType>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [itemsToShow, setItemsToShow] = useState(8);
 
   const filteredItems = useMemo(() => {
     if (filter === "all") return products;
-    return products.filter((item) => item.collections.includes(filter));
+    return products.filter((item) => item.typeId === filter);
   }, [products, filter]);
 
   const displayedItems = useMemo(
@@ -87,7 +80,13 @@ export function ProductsGrid({ products }: IProductsGridProps) {
 
       <motion.div
         layout
-        variants={containerVariants}
+        variants={{
+          animate: {
+            transition: {
+              staggerChildren: 0.04,
+            },
+          },
+        }}
         animate="animate"
         className={cn(
           "grid gap-2 sm:gap-6 md:gap-8 w-full",
@@ -111,7 +110,7 @@ export function ProductsGrid({ products }: IProductsGridProps) {
               image={product.image}
               hoverImage={product.hoverImage}
               title={product.title}
-              cost={product.price}
+              cost={product.sizes[0].price}
               alt={product.title}
             />
           </motion.div>
@@ -148,7 +147,7 @@ export function ProductsGrid({ products }: IProductsGridProps) {
           <div className="border-b border-gray-500 flex items-center justify-between p-4">
             <motion.div whileHover={{ x: 5 }} whileTap={{ scale: 0.9 }}>
               <ChevronRight
-                className="w-8 h-8 cursor-pointer text-black dark:text-white"
+                className="w-8 h-8 cursor-pointer text-foreground"
                 onClick={handleCloseDrawer}
               />
             </motion.div>
@@ -164,24 +163,19 @@ export function ProductsGrid({ products }: IProductsGridProps) {
                 value="all"
                 label="Все товары"
                 checked={tempFilter === "all"}
-                onChange={(e) => setTempFilter(e.target.value as FilterType)}
+                onChange={(e) => setTempFilter(e.target.value as TFilterType)}
               />
-              <Radio
-                id="filter-chokers"
-                name="category"
-                value="chokers"
-                label="Чокеры"
-                checked={tempFilter === "chokers"}
-                onChange={(e) => setTempFilter(e.target.value as FilterType)}
-              />
-              <Radio
-                id="filter-bracers"
-                name="category"
-                value="bracers"
-                label="Браслеты"
-                checked={tempFilter === "bracers"}
-                onChange={(e) => setTempFilter(e.target.value as FilterType)}
-              />
+              {types.map((type) => (
+                <Radio
+                  key={type.id}
+                  id={`filter-${type.name}`}
+                  name="type"
+                  value={type.id}
+                  label={type.name}
+                  checked={tempFilter === type.id}
+                  onChange={(e) => setTempFilter(Number(e.target.value) as TFilterType)}
+                />
+              ))}
             </div>
           </div>
           <motion.div

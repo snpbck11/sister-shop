@@ -1,24 +1,38 @@
+"use client";
+
 import { Check, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/cn";
 import { EditButton, IconButton } from "./Buttons";
-import { Input } from "./Input";
+import { Input } from "./Controls/Input";
 
-interface IEditableFieldProps {
+interface IEditableFieldProps<T> {
   value: string;
-  onSave: (nextValue: string) => Promise<void>;
+  onSave: (nextValue: string) => Promise<T>;
   placeholder?: string;
   textClassname?: string;
 }
 
-export function EditableField({ value, onSave, placeholder, textClassname }: IEditableFieldProps) {
+export function EditableField<T>({ value, onSave, placeholder, textClassname }: IEditableFieldProps<T>) {
   const [isEdit, setIsEdit] = useState(false);
-  const [inputValue, setInputValue] = useState(value);
+  const [draft, setDraft] = useState<null | string>(value);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = async () => {
-    const nextValue = inputValue.trim();
+  const startEdit = () => {
+    setError(null);
+    setDraft(value);
+    setIsEdit(true);
+  };
+
+  const closeEdit = () => {
+    setError(null);
+    setDraft(null);
+    setIsEdit(false);
+  };
+
+  const submit = async () => {
+    const nextValue = draft?.trim() ?? value.trim();
 
     if (nextValue === value) {
       setIsEdit(false);
@@ -29,58 +43,50 @@ export function EditableField({ value, onSave, placeholder, textClassname }: IEd
       setLoading(true);
       setError(null);
       await onSave(nextValue);
+
       setIsEdit(false);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Не удалось сохранить");
-      }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Не удалось сохранить");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCloseEdit = () => {
-    setError(null);
-    setInputValue(value);
-    setIsEdit(false);
-  };
-
   if (!isEdit) {
     return (
-      <div className={"flex items-center gap-2"}>
-        <p className={cn("truncate", textClassname)}>{inputValue}</p>
-        <EditButton onClick={() => setIsEdit(true)} />
+      <div className="flex items-center gap-2 min-w-0">
+        <p className={cn("truncate", textClassname)}>{value}</p>
+        <EditButton onClick={startEdit} />
       </div>
     );
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 min-w-0">
       <div className="min-w-0 flex-1">
         <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          value={draft ?? value}
+          onChange={(e) => setDraft(e.target.value)}
           placeholder={placeholder}
+          loading={loading}
           disabled={loading}
-          error={error ? error : undefined}
+          error={error ?? undefined}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              onSubmit();
+              submit();
             }
             if (e.key === "Escape") {
               e.preventDefault();
-              handleCloseEdit();
+              closeEdit();
             }
           }}
           className="min-w-50"
         />
       </div>
       <div className="flex gap-1 items-center">
-        <IconButton icon={Check} onClick={onSubmit} />
-        <IconButton icon={X} onClick={handleCloseEdit} />
+        <IconButton icon={Check} onClick={submit} disabled={loading} />
+        <IconButton icon={X} onClick={closeEdit} disabled={loading} />
       </div>
     </div>
   );

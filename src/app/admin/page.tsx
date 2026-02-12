@@ -1,16 +1,24 @@
-import { Package, ShoppingBag, Users, DollarSign } from "lucide-react";
+import { getCategories, getCollections, getProducts } from "@/shared/server/db";
+import { DollarSign, Library, Package, ShoppingBag, Users } from "lucide-react";
 
-const stats = [
-  { label: "Всего товаров", value: "124", icon: Package, color: "bg-blue-500" },
-  { label: "Категорий", value: "12", icon: ShoppingBag, color: "bg-green-500" },
-  { label: "Заказов", value: "48", icon: Users, color: "bg-purple-500" },
-  { label: "Выручка", value: "₽48,920", icon: DollarSign, color: "bg-yellow-500" },
-];
+export default async function AdminDashboard() {
+  const [products, collections, categories] = await Promise.all([
+    getProducts(),
+    getCollections(),
+    getCategories(),
+  ]);
 
-export default function AdminDashboard() {
+  const stats = [
+    { label: "Всего товаров", value: products.length, icon: Package, color: "bg-blue-500" },
+    { label: "Категорий", value: categories.length, icon: ShoppingBag, color: "bg-green-500" },
+    { label: "Коллекций", value: collections.length, icon: Library, color: "bg-purple-500" },
+    { label: "Заказов", value: "48", icon: Users, color: "bg-purple-500" },
+    { label: "Выручка", value: "₽48,920", icon: DollarSign, color: "bg-yellow-500" },
+  ];
+
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8">Панель управления</h1>
+      <h1 className="text-3xl font-bold mb-8">Панель управления (Пока просто заглушка)</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat) => {

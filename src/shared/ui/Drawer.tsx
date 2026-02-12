@@ -80,7 +80,6 @@ export function Drawer({
             exit={{ opacity: 0 }}
             transition={{ duration: DURATION, ease: "easeOut" }}
           />
-
           <motion.div
             className={cn(
               "relative h-full shadow-2xl flex flex-col bg-background",
@@ -92,10 +91,9 @@ export function Drawer({
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: DURATION, ease: 'easeInOut' }}
-          >
+            transition={{ duration: DURATION, ease: "easeInOut" }}>
             {headerContent && <div className="shrink-0">{headerContent}</div>}
-            <div className={cn("overflow-y-auto flex-1", containerClassname)}>{children}</div>
+            <div className={cn("flex-1 min-h-0 flex flex-col", containerClassname)}>{children}</div>
           </motion.div>
         </motion.div>
       )}

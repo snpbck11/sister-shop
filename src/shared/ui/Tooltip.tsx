@@ -7,6 +7,7 @@ interface ITooltipProps {
   content: ReactNode;
   children: ReactNode;
   position?: "top" | "bottom" | "left" | "right";
+  tooltipClassname?: string;
 }
 
 const positionStyles = {
@@ -16,9 +17,9 @@ const positionStyles = {
   right: "left-full top-1/2 -translate-y-1/2 ml-2",
 };
 
-export function Tooltip({ content, children, position = "top" }: ITooltipProps) {
+export function Tooltip({ content, children, position = "top", tooltipClassname }: ITooltipProps) {
   return (
-    <div className="relative group max-w-min">
+    <div className="relative group">
       {children}
 
       <div
@@ -29,6 +30,7 @@ export function Tooltip({ content, children, position = "top" }: ITooltipProps) 
           "transition-all duration-150 ease-out",
           "group-hover:opacity-100 group-hover:scale-100",
           positionStyles[position],
+          tooltipClassname,
         )}>
         {content}
 

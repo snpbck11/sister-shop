@@ -11,7 +11,7 @@ import { HeaderMenu } from "./HeaderMenu";
 export function Header() {
 
   return (
-    <header className="sticky top-0 left-0 z-50 h-(--header-height) flex justify-between items-center px-5 lg:px-7.5 bg-background border-b border-b-black/8 dark:border-b-white/[0.145]">
+    <header className="sticky top-0 left-0 z-50 flex justify-between items-center px-5 lg:px-7.5 bg-background border-b border-b-black/8 dark:border-b-white/[0.145]">
       <div className="grow shrink-0 basis-0">
         <nav className="hidden lg:block">
           <ul className="flex gap-3">

@@ -1,16 +1,19 @@
-import { getCollectionWithProducts } from "@/entities/collection";
+import { getCollectionWithProducts, getProductTypes } from "@/shared/server/db";
 import { ProductsGrid } from "@/widgets/ProductsGrid";
 
 export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  const data = await getCollectionWithProducts(slug);
+  const [collectionWithProducts, types] = await Promise.all([
+    getCollectionWithProducts(slug),
+    getProductTypes(),
+  ]);
 
-  if (!data) {
+  if (!collectionWithProducts) {
     return <p className="text-center w-full mt-12">Коллекция не найдена</p>;
   }
 
-  const { collection, products } = data;
+  const { collection, products } = collectionWithProducts;
 
   return (
     <div className="p-2 pb-10 sm:p-5">
@@ -23,8 +26,8 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
       {products.length === 0 && (
         <p className="text-center text-gray-500 mt-12">В этой коллекции пока нет товаров</p>
       )}
-      
-      <ProductsGrid products={products} />
+
+      <ProductsGrid products={products} types={types} />
     </div>
   );
 }

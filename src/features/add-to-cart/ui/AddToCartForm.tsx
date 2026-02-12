@@ -1,9 +1,9 @@
 "use client";
 
+import { IProductSize } from "@/entities/product-size";
 import { useCartStore } from "@/features/cart";
 import { cn } from "@/shared/lib/cn";
-import { Button, Dialog } from "@/shared/ui";
-import { Ruler } from "lucide-react";
+import { Button } from "@/shared/ui";
 import { useRef, useState } from "react";
 
 interface IAddToCartFormProps {
@@ -11,7 +11,7 @@ interface IAddToCartFormProps {
   productSlug: string;
   title: string;
   image: string;
-  prices: { size: number; price: number; title: string }[];
+  sizes: IProductSize[];
 }
 
 export function AddToCartForm({
@@ -19,16 +19,16 @@ export function AddToCartForm({
   productSlug,
   title,
   image,
-  prices,
+  sizes,
 }: IAddToCartFormProps) {
   const { addItem } = useCartStore();
-  const [price, setPrice] = useState(prices[0].price);
-  const [selectedSize, setSelectedSize] = useState(prices[0]);
+  const [price, setPrice] = useState(sizes[0].price);
+  const [selectedSize, setSelectedSize] = useState(sizes[0]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const handleSizeChange = (priceOption: { size: number; price: number; title: string }) => {
+  const handleSizeChange = (priceOption: IProductSize) => {
     setSelectedSize(priceOption);
     setPrice(priceOption.price);
   };
@@ -42,8 +42,7 @@ export function AddToCartForm({
       title,
       image,
       price: selectedSize.price,
-      size: selectedSize.title,
-      sizeValue: selectedSize.size,
+      size: selectedSize.name,
     });
 
     setTimeout(() => {
@@ -59,26 +58,26 @@ export function AddToCartForm({
         <div className="flex flex-col">
           <div className="flex justify-between relative">
             <p className="font-medium mb-2">Выберите размер:</p>
-            <button
+            {/* <button
               ref={buttonRef}
               onClick={() => setIsDialogOpen(true)}
               className="flex items-center gap-1 cursor-pointer hover:opacity-70 transition-opacity">
               <Ruler className="w-4 h-4" />
               <p>Примеры размеров</p>
-            </button>
+            </button> */}
           </div>
-          <ul className={cn("grid grid-cols-1 gap-4", prices.length > 1 && "grid-cols-2")}>
-            {prices.map((priceOption) => (
+          <ul className={cn("grid grid-cols-1 gap-4", sizes.length > 1 && "grid-cols-2")}>
+            {sizes.map((size) => (
               <div
-                key={priceOption.size}
+                key={size.id}
                 className={cn(
                   "w-full flex justify-between cursor-pointer py-2 px-2.5 ring-1 ring-gray-500 transition-all",
-                  selectedSize.size === priceOption.size &&
+                  selectedSize.name === size.name &&
                     "ring-foreground ring-offset-2 ring-offset-foreground",
                 )}
-                onClick={() => handleSizeChange(priceOption)}>
-                <p className="uppercase">{priceOption.title}</p>
-                <p className="uppercase">{priceOption.size} см</p>
+                onClick={() => handleSizeChange(size)}>
+                <p className="uppercase">{size.name}</p>
+                <p className="uppercase">{size.description}</p>
               </div>
             ))}
           </ul>
@@ -93,7 +92,8 @@ export function AddToCartForm({
           {isAdding ? "Добавлено" : "Добавить в корзину"}
         </Button>
 
-        <Dialog
+        {/* пока повременим с этим, подумать нужно ли это */}
+        {/* <Dialog
           isOpen={isDialogOpen}
           onClose={() => setIsDialogOpen(false)}
           anchorRef={buttonRef}
@@ -124,7 +124,7 @@ export function AddToCartForm({
               </button>
             ))}
           </div>
-        </Dialog>
+        </Dialog> */}
       </div>
     </div>
   );
