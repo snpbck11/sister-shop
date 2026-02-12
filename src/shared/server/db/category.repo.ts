@@ -18,6 +18,33 @@ export async function getCategories() {
   return categories;
 }
 
+export async function getCategoryWithProducts(slug: string) {
+  const category = await prisma.category.findUnique({
+    where: { slug },
+    include: {
+      products: {
+        include: {
+          sizes: true,
+          collections: {
+            include: {
+              collection: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!category) return null;
+
+  const { products, ...categoryData } = category;
+
+  return {
+    category: categoryData, // либо просто category, если тебе ок вместе с products
+    products,
+  };
+}
+
 export async function getCategoryBySlug(slug: string) {
   const category = await prisma.category.findUnique({
     where: { slug },

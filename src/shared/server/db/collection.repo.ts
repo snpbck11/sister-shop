@@ -17,14 +17,6 @@ export async function getCollectionWithProducts(slug: string) {
 
   if (!collection) return null;
 
-  if (slug === "all-designs") {
-    const products = await prisma.product.findMany({
-      include: productInclude,
-    });
-
-    return { collection, products };
-  }
-
   const collectionWithProducts = await prisma.collection.findUnique({
     where: { slug },
     include: {

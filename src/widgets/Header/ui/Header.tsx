@@ -1,14 +1,30 @@
+import { ICategory } from "@/entities/category";
+import { ICollection } from "@/entities/collection";
 import { Cart } from "@/features/cart";
 import { Logo } from "@/shared/ui";
 import Image from "next/image";
 import Link from "next/link";
-import { categoriesLinks, collectionsLinks, helpLinks } from "../lib/constants";
+import { helpLinks } from "../lib/constants";
+import { IDropdownItem } from "../lib/IDropdownItem";
 import { DopdownMenuColumn } from "./DopdownMenuColumn";
 import { HeaderDropdown } from "./HeaderDropdown";
 import { HeaderLink } from "./HeaderLink";
 import { HeaderMenu } from "./HeaderMenu";
 
-export function Header() {
+interface IHeaderProps {
+  collections: ICollection[];
+  categories: ICategory[];
+}
+export function Header({ collections, categories }: IHeaderProps) {
+  const collectionsLinks: IDropdownItem[] = collections.map((c) => ({
+    title: c.name,
+    href: `/collections/${c.slug}`,
+  }));
+
+  const categoriesLinks: IDropdownItem[] = categories.map((c) => ({
+    title: c.name,
+    href: `/categories/${c.slug}`,
+  }));
 
   return (
     <header className="sticky top-0 left-0 z-50 flex justify-between items-center px-5 lg:px-7.5 bg-background border-b border-b-black/8 dark:border-b-white/[0.145]">

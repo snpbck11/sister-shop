@@ -1,12 +1,11 @@
 "use client";
 
-import { ProductCard } from "@/entities/product";
-import { ICarouselItem } from "@/shared/config/carouselProducts";
+import { IProduct, ProductCard } from "@/entities/product";
 import useBreakpoint from "@/shared/hooks/useBreakpoint";
 import { Carousel } from "@/shared/ui";
 
 interface IProductsCarouselProps {
-  products: ICarouselItem[];
+  products: IProduct[];
   className?: string;
 }
 
@@ -24,15 +23,7 @@ export function ProductsCarousel({ products, className }: IProductsCarouselProps
   return (
     <Carousel
       items={products}
-      renderItem={(product) => (
-        <ProductCard
-          slug={product.slug}
-          image={product.image}
-          hoverImage={product.hoverImage}
-          title={product.title}
-          cost={product.price}
-        />
-      )}
+      renderItem={(product) => <ProductCard product={product} />}
       itemsToShow={itemsToShow}
       gap={gap}
       className={className}

@@ -3,27 +3,19 @@
 import { cn } from "@/shared/lib/cn";
 import Image from "next/image";
 import Link from "next/link";
+import { IProduct } from "../model/types";
 
 interface IProductCardProps {
-  slug: string;
-  image: string;
-  hoverImage: string;
-  alt?: string;
-  onClick?: () => void;
+  product: IProduct;
   className?: string;
-  title: string;
-  cost: number;
 }
 
-export function ProductCard({
-  slug,
-  image,
-  hoverImage,
-  alt = "Изображение товара",
-  className,
-  title,
-  cost,
-}: IProductCardProps) {
+export function ProductCard({ product, className }: IProductCardProps) {
+  const { slug, image, hoverImage, title, sizes } = product;
+
+  const cost = sizes[0].price;
+  const alt = `Изображение товара ${title}`;
+
   return (
     <Link href={`/products/${slug}`} className="block">
       <div className={cn("relative aspect-square overflow-hidden cursor-pointer", className)}>
