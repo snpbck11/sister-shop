@@ -41,7 +41,7 @@ export function OrderSummary() {
                 {item.title}
               </Link>
               <p className="text-sm text-gray-500">
-                {item.size} ({item.sizeValue} см) × {item.quantity}
+                {item.size} × {item.quantity}
               </p>
               <p className="text-sm font-semibold">{item.price * item.quantity} ₽</p>
             </div>

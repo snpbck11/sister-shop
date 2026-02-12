@@ -12,7 +12,7 @@ export default async function MainLayout({ children }: IMainLayoutProps) {
 
   return (
     <>
-      <Header categories={categories || []} collections={collections} />
+      <Header categories={categories} collections={collections} />
       <main>{children}</main>
       <Footer />
     </>

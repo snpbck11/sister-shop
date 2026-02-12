@@ -170,15 +170,20 @@ export async function getRecommendedProducts(productId: number) {
       id: { not: productId },
       ...(currentProduct.categoryId && { categoryId: currentProduct.categoryId }),
     },
-    select: {
-      slug: true,
-      title: true,
-      image: true,
-      hoverImage: true,
-      sizes: {
-        select: {
-          price: true,
+    include: {
+      collections: {
+        include: {
+          collection: {
+            select: { id: true, name: true },
+          },
         },
+      },
+      category: {
+        select: { id: true, name: true },
+      },
+      sizes: true,
+      type: {
+        select: { id: true, name: true },
       },
     },
     take: 8,
@@ -186,10 +191,7 @@ export async function getRecommendedProducts(productId: number) {
   });
 
   return recommendedProducts.map((product) => ({
-    slug: product.slug,
-    title: product.title,
-    image: product.image,
-    hoverImage: product.hoverImage,
+    ...product,
     price: product.sizes.length > 0 ? Math.min(...product.sizes.map((s) => s.price)) : 0,
   }));
 }

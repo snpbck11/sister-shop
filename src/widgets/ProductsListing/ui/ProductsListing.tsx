@@ -114,12 +114,7 @@ export function ProductsListing({ title, description, products, types }: IProduc
               }}>
               <ProductCard
                 key={product.id}
-                slug={product.slug}
-                image={product.image}
-                hoverImage={product.hoverImage}
-                title={product.title}
-                cost={product.sizes[0].price}
-                alt={product.title}
+                product={product}
               />
             </motion.div>
           ))}
