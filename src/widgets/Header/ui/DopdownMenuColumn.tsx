@@ -19,7 +19,7 @@ export function DopdownMenuColumn({ title, items }: IDopdownMenuColumnProps) {
         {items.map((item) => (
           <li key={item.href}>
             <Link
-              href={`/collections/${item.href}`}
+              href={item.href}
               className={cn(
                 "text-sm uppercase tracking-widest",
                 "hover:underline underline-offset-4",

@@ -1,5 +1,5 @@
-import { carouselList } from "@/shared/config/carouselProducts";
 import { ROUTES } from "@/shared/config/routes";
+import { getProducts } from "@/shared/server/db";
 import { ButtonLink } from "@/shared/ui";
 import { CategoriesList } from "@/widgets/CategoriesList";
 import { CollectionsList } from "@/widgets/CollectionsList";
@@ -7,7 +7,9 @@ import { collectionsList } from "@/widgets/CollectionsList/lib/collectionsList";
 import { HeroSection } from "@/widgets/HeroSection";
 import { ProductsCarousel } from "@/widgets/ProductsCarousel";
 
-export default function Home() {
+export default async function Home() {
+  const products = await getProducts();
+
   return (
     <section>
       <HeroSection />
@@ -17,7 +19,7 @@ export default function Home() {
           Самые популярные
         </h2>
         <div className="w-full no-scrollbar">
-          <ProductsCarousel products={carouselList} />
+          <ProductsCarousel products={products} />
         </div>
         <div className="mt-12 mb-24 px-8 py-4 w-full flex justify-center">
           <ButtonLink href={ROUTES.collections.allDesigns} variant="ghost" text="Посмотреть всё" />

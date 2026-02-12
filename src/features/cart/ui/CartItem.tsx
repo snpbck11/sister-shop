@@ -43,7 +43,7 @@ export function CartItem({ item }: ICartItemProps) {
               {item.title}
             </Link>
             <p className="text-sm text-gray-500">
-              Размер: {item.size} ({item.sizeValue} см)
+              Размер: {item.size}
             </p>
           </div>
           <button

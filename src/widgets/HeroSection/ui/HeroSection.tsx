@@ -65,7 +65,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}>
             <ButtonLink
-              href={ROUTES.collections.allDesigns}
+              href={ROUTES.collections.allDesigns} // сделать по этим роутам исключения в запросах? типа по all-designs просто всё выдавать
               prefetch
               variant="white"
               text="Купить сейчас"
