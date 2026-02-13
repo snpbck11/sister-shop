@@ -1,5 +1,8 @@
-
-import { getCachedCategories, getCachedCollections } from "@/shared/server/cache";
+import {
+  getCachedCategories,
+  getCachedCollections,
+  getCachedProducts,
+} from "@/shared/server/cache";
 import { Footer } from "@/widgets/Footer";
 import { Header } from "@/widgets/Header";
 import { ReactNode } from "react";
@@ -9,14 +12,15 @@ interface IMainLayoutProps {
 }
 
 export default async function MainLayout({ children }: IMainLayoutProps) {
-  const [categories, collections] = await Promise.all([
+  const [products, categories, collections] = await Promise.all([
+    getCachedProducts(),
     getCachedCategories(),
     getCachedCollections(),
   ]);
 
   return (
     <>
-      <Header categories={categories} collections={collections} />
+      <Header categories={categories} collections={collections} products={products} />
       <main>{children}</main>
       <Footer />
     </>

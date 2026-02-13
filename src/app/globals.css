@@ -36,6 +36,7 @@
   }
 }
 
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -63,4 +64,12 @@ body:has(.hide-overflow) {
 
 .no-number-arrows[type="number"] {
   -moz-appearance: textfield;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-foreground);
+  -webkit-mask: url("/logo.png") no-repeat center / contain;
+  mask: url("/logo.png") no-repeat center / contain;
 }

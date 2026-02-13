@@ -1,5 +1,6 @@
 import { ICategory } from "@/entities/category";
 import { ICollection } from "@/entities/collection";
+import { IStorefrontProductCard } from "@/entities/product";
 import { Cart } from "@/features/cart";
 import { Logo } from "@/shared/ui";
 import Image from "next/image";
@@ -14,8 +15,9 @@ import { HeaderMenu } from "./HeaderMenu";
 interface IHeaderProps {
   collections: ICollection[];
   categories: ICategory[];
+  products: IStorefrontProductCard[];
 }
-export function Header({ collections, categories }: IHeaderProps) {
+export function Header({ collections, categories, products }: IHeaderProps) {
   const collectionsLinks: IDropdownItem[] = collections.map((c) => ({
     title: c.name,
     href: `/collections/${c.slug}`,
@@ -81,6 +83,7 @@ export function Header({ collections, categories }: IHeaderProps) {
         <HeaderMenu
           categoriesLinks={categoriesLinks}
           collectionsLinks={collectionsLinks}
+          recommendedProducts={products}
           className="lg:hidden"
         />
       </div>

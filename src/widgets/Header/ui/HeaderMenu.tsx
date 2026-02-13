@@ -1,6 +1,7 @@
 "use client";
 
-import { carouselList } from "@/shared/config/carouselProducts";
+import { IStorefrontProductCard } from "@/entities/product";
+import { ROUTES } from "@/shared/config/routes";
 import useBreakpoint from "@/shared/hooks/useBreakpoint";
 import { cn } from "@/shared/lib/cn";
 import { Accordion, CloseButton, Drawer } from "@/shared/ui";
@@ -17,14 +18,30 @@ interface IHeaderMenuProps {
   className?: string;
   collectionsLinks: IDropdownItem[];
   categoriesLinks: IDropdownItem[];
+  recommendedProducts: IStorefrontProductCard[];
 }
 
-export function HeaderMenu({ className, categoriesLinks, collectionsLinks }: IHeaderMenuProps) {
+export function HeaderMenu({
+  className,
+  categoriesLinks,
+  collectionsLinks,
+  recommendedProducts,
+}: IHeaderMenuProps) {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   const breakPoints = useBreakpoint();
   const isDesktop = breakPoints === "desktop";
   const isDrawerOpen = !isDesktop && openDrawer;
+
+  const mappedCategoriesLinks = categoriesLinks.map((l) => ({
+    ...l,
+    href: `${ROUTES.categories.main}/${l.href}`,
+  }));
+
+  const mappedCollectionsLinks = collectionsLinks.map((l) => ({
+    ...l,
+    href: `${ROUTES.collections.main}/${l.href}`,
+  }));
 
   const handleCloseDrawer = () => {
     setOpenDrawer(false);
@@ -53,15 +70,19 @@ export function HeaderMenu({ className, categoriesLinks, collectionsLinks }: IHe
               <Accordion title={<p className={cn("border-none", menuLinkStyle)}>Магазин</p>}>
                 <MenuColumn
                   title="Коллекции"
-                  links={collectionsLinks}
+                  links={mappedCollectionsLinks}
                   onClick={handleCloseDrawer}
                 />
-                <MenuColumn title="Коллекции" links={categoriesLinks} onClick={handleCloseDrawer} />
+                <MenuColumn
+                  title="Категории"
+                  links={mappedCategoriesLinks}
+                  onClick={handleCloseDrawer}
+                />
               </Accordion>
             </li>
             <li>
               <MenuLink
-                href="/collections/bestsellers"
+                href="/collections/bestsellery"
                 title="Бестселлеры"
                 onClick={handleCloseDrawer}
               />
@@ -73,7 +94,7 @@ export function HeaderMenu({ className, categoriesLinks, collectionsLinks }: IHe
             <li>
               <p className={cn(menuLinkStyle, "border-none")}>*Новинки</p>
               <ul className="flex gap-4 overflow-auto no-scrollbar">
-                {carouselList.map((item) => (
+                {recommendedProducts.map((item) => (
                   <li key={item.slug} className="shrink-0">
                     <Link href={`/products/${item.slug}`} onClick={handleCloseDrawer}>
                       <Image

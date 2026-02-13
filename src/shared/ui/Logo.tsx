@@ -15,8 +15,9 @@ const sizeStyles = {
 
 export function Logo({ className, size = "lg", href = "/" }: ILogoProps) {
   return (
-    <Link href={href}>
+    <Link href={href} className="flex gap-2 items-center">
       <h1 className={cn("font-bold uppercase", sizeStyles[size], className)}>CHOKER TYUMEN</h1>
+      <div className="logo-icon" />
     </Link>
   );
 }
