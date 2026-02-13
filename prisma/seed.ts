@@ -30,6 +30,7 @@ async function main() {
       slug: "elegance",
       name: "Элегантные",
       description: "Изысканные украшения для особых случаев",
+      image: "s",
     },
   });
 
@@ -38,6 +39,7 @@ async function main() {
       slug: "casual",
       name: "Повседневные",
       description: "Стильные украшения на каждый день",
+      image: "s",
     },
   });
 
@@ -85,10 +87,7 @@ async function main() {
         ],
       },
       collections: {
-        create: [
-          { collectionId: collection1.id },
-          { collectionId: collection2.id },
-        ],
+        create: [{ collectionId: collection1.id }, { collectionId: collection2.id }],
       },
     },
   });
@@ -168,10 +167,7 @@ async function main() {
         ],
       },
       collections: {
-        create: [
-          { collectionId: collection1.id },
-          { collectionId: collection2.id },
-        ],
+        create: [{ collectionId: collection1.id }, { collectionId: collection2.id }],
       },
     },
   });
@@ -204,7 +200,6 @@ async function main() {
   });
 
   console.log("База заполнена!");
-
 }
 
 main()

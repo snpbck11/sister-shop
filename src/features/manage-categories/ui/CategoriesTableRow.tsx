@@ -4,6 +4,7 @@ import {
   DeleteButton,
   EditableDescriptionCell,
   EditableField,
+  ImageCell,
   SlugCell,
   TableCell,
   TableRow,
@@ -28,6 +29,7 @@ export function CategoriesTableRow({ category, onDelete, updateField }: ICategor
           onSave={(nextValue) => updateField(category.id, nextValue, "name")}
         />
       </TableCell>
+      <ImageCell src={category.image} alt={category.name} />
       <SlugCell slug={category.slug} />
       <EditableDescriptionCell
         value={category.description}

@@ -23,6 +23,7 @@ export { ImageUpload } from "./ImageUpload";
 export { AdminDrawer, AdminPageLayout } from "./Layouts";
 export { Logo } from "./Logo";
 export { ConfirmModal, FormModal, Modal } from "./Modals";
+export { Pagination } from "./Pagination";
 export { Skeleton } from "./Skeleton";
 export { Spinner } from "./Spinner";
 export { Table, TableCell, TableRow } from "./Table";

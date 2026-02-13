@@ -78,7 +78,11 @@ export function Header({ collections, categories }: IHeaderProps) {
             </li>
           </ul>
         </nav>
-        <HeaderMenu className="lg:hidden" />
+        <HeaderMenu
+          categoriesLinks={categoriesLinks}
+          collectionsLinks={collectionsLinks}
+          className="lg:hidden"
+        />
       </div>
       <Logo />
       <div className="grow shrink-0 basis-0 flex justify-end">

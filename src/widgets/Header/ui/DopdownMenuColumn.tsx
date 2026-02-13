@@ -21,7 +21,7 @@ export function DopdownMenuColumn({ title, items }: IDopdownMenuColumnProps) {
             <Link
               href={item.href}
               className={cn(
-                "text-sm uppercase tracking-widest",
+                "text-sm uppercase tracking-widest text-nowrap",
                 "hover:underline underline-offset-4",
                 pathname.includes(item.href) && "underline underline-offset-4",
               )}>

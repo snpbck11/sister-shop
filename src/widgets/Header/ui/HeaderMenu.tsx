@@ -8,16 +8,18 @@ import { Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { categoriesLinks, collectionsLinks } from "../lib/constants";
+import { IDropdownItem } from "../lib/IDropdownItem";
 import { menuLinkStyle } from "../lib/menuLinkStyles";
 import MenuColumn from "./MenuColumn";
 import MenuLink from "./MenuLink";
 
 interface IHeaderMenuProps {
   className?: string;
+  collectionsLinks: IDropdownItem[];
+  categoriesLinks: IDropdownItem[];
 }
 
-export function HeaderMenu({ className }: IHeaderMenuProps) {
+export function HeaderMenu({ className, categoriesLinks, collectionsLinks }: IHeaderMenuProps) {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   const breakPoints = useBreakpoint();
@@ -36,13 +38,13 @@ export function HeaderMenu({ className }: IHeaderMenuProps) {
       <Drawer
         open={isDrawerOpen}
         onClose={handleCloseDrawer}
-        drawerClassname="w-full max-w-2xl overflow-hidden"
+        drawerClassname="w-full max-w-2xl"
         headerContent={
           <div className="p-4 sticky flex shadow-[0_14px_14px_0px_rgb(255,255,255)] dark:shadow-[0_14px_14px_0px_rgb(0,0,0)]">
             <CloseButton onClick={handleCloseDrawer} buttonClassName="ml-auto " />
           </div>
         }>
-        <nav className="px-7.5 pb-10">
+        <nav className="px-7.5 pb-10 overflow-auto">
           <ul>
             <li>
               <MenuLink href="/" title="Главная" onClick={handleCloseDrawer} />

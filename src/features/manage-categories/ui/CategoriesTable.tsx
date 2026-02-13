@@ -26,7 +26,7 @@ export function CategoriesTable({ initialCategories }: ICategoriesTableProps) {
   const addCategory = async (data: TCreateCategoryInput) => {
     const res = await createCategory(data);
 
-    if (!res.success) return { success: res.success, error: res.error };
+    if (!res.success) throw new Error(res.error);
 
     setCategories((prev) => [res.data, ...prev]);
 
@@ -36,7 +36,7 @@ export function CategoriesTable({ initialCategories }: ICategoriesTableProps) {
   const updateField = async (id: number, nextValue: string, key: TCategoryUdpatebleFields) => {
     const res = await patchCategory(id, { [key]: nextValue });
 
-    if (!res.success) return { success: res.success, error: res.error };
+    if (!res.success) throw new Error(res.error);
 
     setCategories((prev) => prev.map((p) => (p.id === id ? { ...p, ...res.data } : p)));
 
