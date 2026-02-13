@@ -20,7 +20,7 @@ export default function MenuColumn({ title, links, onClick }: IMenuColumnProps) 
         {links.map((link) => (
           <li key={link.href}>
             <Link
-              href={`/collections/${link.href}`}
+              href={link.href}
               className={cn(
                 "text-sm",
                 pathname.includes(link.href) && "underline underline-offset-4",
