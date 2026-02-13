@@ -1,7 +1,9 @@
 "use client";
 
-import { IProduct, ProductCard } from "@/entities/product";
-import { IProductType } from "@/entities/product-type";
+import type { IStorefrontProductCard, IStorefrontProductsPage } from "@/entities/product";
+import { ProductCard } from "@/entities/product";
+import type { IProductType } from "@/entities/product-type";
+import { ApiResponse } from "@/shared/api/http/types";
 import { cn } from "@/shared/lib/cn";
 import { Button, Drawer, Radio } from "@/shared/ui";
 import { motion } from "framer-motion";
@@ -9,51 +11,74 @@ import { ChevronRight, Grid3X3, LayoutGrid, SlidersHorizontal, Square } from "lu
 import { useMemo, useState } from "react";
 import { iconClass } from "../lib/iconClass";
 
+type TFilterType = "all" | number;
+
 interface IProductsListingProps {
   title: string;
   description?: string;
-  products: IProduct[];
+  initial: IStorefrontProductsPage;
   types: IProductType[];
+  loadMore: (cursor: string) => Promise<ApiResponse<IStorefrontProductsPage>>;
 }
 
-type TFilterType = "all" | number;
-
-export function ProductsListing({ title, description, products, types }: IProductsListingProps) {
+export function ProductsListing({
+  title,
+  description,
+  initial,
+  types,
+  loadMore,
+}: IProductsListingProps) {
   const [gridMode, setGridMode] = useState<"compact" | "wide">("wide");
   const [filter, setFilter] = useState<TFilterType>("all");
   const [tempFilter, setTempFilter] = useState<TFilterType>("all");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [itemsToShow, setItemsToShow] = useState(8);
+  const [items, setItems] = useState<IStorefrontProductCard[]>(initial.items);
+  const [nextCursor, setNextCursor] = useState<string | null>(initial.nextCursor);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const filteredItems = useMemo(() => {
-    if (filter === "all") return products;
-    return products.filter((item) => item.typeId === filter);
-  }, [products, filter]);
+    if (filter === "all") return items;
+    return items.filter((p) => p.typeId === filter);
+  }, [items, filter]);
 
-  const displayedItems = useMemo(
-    () => filteredItems.slice(0, itemsToShow),
-    [filteredItems, itemsToShow],
-  );
-
-  const hasMore = itemsToShow < filteredItems.length;
-  const progress = filteredItems.length === 0 ? 0 : (filteredItems.length / products.length) * 100;
-
-  const handleLoadMore = () => {
-    setItemsToShow((prev) => prev + 8);
-  };
+  const total = initial.total;
+  const progress = total === 0 ? 0 : (items.length / total) * 100;
 
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
     setTempFilter(filter);
   };
 
+  const handleLoadMore = async () => {
+    if (!nextCursor || isLoadingMore) return;
+
+    setIsLoadingMore(true);
+    try {
+      const page = await loadMore(nextCursor);
+
+      if (!page.success) throw new Error("Ошибка при загрузке товаров");
+
+      const { data } = page;
+
+      setItems((prev) => {
+        const seen = new Set(prev.map((x) => x.id));
+        const merged = [...prev];
+        for (const x of data.items) if (!seen.has(x.id)) merged.push(x);
+        return merged;
+      });
+
+      setNextCursor(data.nextCursor);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
   return (
     <div className="p-2 pb-10 sm:p-5">
       <h2 className="text-sm text-center uppercase tracking-widest mb-2">{title}</h2>
-
       {description && <p className="mb-4 text-center tracking-widest">{description}</p>}
 
-      {products.length === 0 && (
+      {items.length === 0 && (
         <p className="text-center text-gray-500 mt-12">В этой коллекции пока нет товаров</p>
       )}
 
@@ -86,14 +111,11 @@ export function ProductsListing({ title, description, products, types }: IProduc
             <span className="text-sm uppercase tracking-widest">Фильтр</span>
           </button>
         </div>
+
         <motion.div
           layout
           variants={{
-            animate: {
-              transition: {
-                staggerChildren: 0.04,
-              },
-            },
+            animate: { transition: { staggerChildren: 0.04 } },
           }}
           animate="animate"
           className={cn(
@@ -101,34 +123,28 @@ export function ProductsListing({ title, description, products, types }: IProduc
             gridMode === "compact" && "sm:grid-cols-2",
             gridMode === "wide" && "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4",
           )}>
-          {displayedItems.map((product) => (
+          {filteredItems.map((product) => (
             <motion.div
               key={product.id}
               layout
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              transition={{
-                duration: 0.25,
-                ease: "easeOut",
-              }}>
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
+              transition={{ duration: 0.25, ease: "easeOut" }}>
+              <ProductCard product={product} />
             </motion.div>
           ))}
         </motion.div>
 
-        {filteredItems.length === 0 && (
+        {filteredItems.length === 0 && items.length > 0 && (
           <p className="text-center text-gray-500 mt-12">Товары не найдены</p>
         )}
 
-        {filteredItems.length > 0 && (
+        {items.length > 0 && (
           <div className="mt-12 mx-auto space-y-4 max-w-50">
             <div className="space-y-2">
               <span className="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center block">
-                Показано {displayedItems.length} из {products.length}
+                Показано {items.length} из {total}
               </span>
               <div className="w-full h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                 <div
@@ -137,7 +153,12 @@ export function ProductsListing({ title, description, products, types }: IProduc
                 />
               </div>
             </div>
-            {hasMore && <Button>Показать ещё</Button>}
+
+            {nextCursor && (
+              <Button onClick={handleLoadMore} disabled={isLoadingMore} className="w-full">
+                {isLoadingMore ? "Загрузка..." : "Показать ещё"}
+              </Button>
+            )}
           </div>
         )}
 
@@ -162,7 +183,7 @@ export function ProductsListing({ title, description, products, types }: IProduc
               <div className="flex flex-col gap-3">
                 <Radio
                   id="filter-all"
-                  name="category"
+                  name="type"
                   value="all"
                   label="Все товары"
                   checked={tempFilter === "all"}
@@ -171,7 +192,7 @@ export function ProductsListing({ title, description, products, types }: IProduc
                 {types.map((type) => (
                   <Radio
                     key={type.id}
-                    id={`filter-${type.name}`}
+                    id={`filter-${type.id}`}
                     name="type"
                     value={type.id}
                     label={type.name}
@@ -181,6 +202,7 @@ export function ProductsListing({ title, description, products, types }: IProduc
                 ))}
               </div>
             </div>
+
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -188,7 +210,6 @@ export function ProductsListing({ title, description, products, types }: IProduc
               <Button
                 onClick={() => {
                   setFilter(tempFilter);
-                  setItemsToShow(8);
                   setIsDrawerOpen(false);
                 }}
                 className="w-full">

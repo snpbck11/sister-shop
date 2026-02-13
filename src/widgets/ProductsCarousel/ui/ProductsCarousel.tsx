@@ -1,11 +1,11 @@
 "use client";
 
-import { IProduct, ProductCard } from "@/entities/product";
+import { IStorefrontProductCard, ProductCard } from "@/entities/product";
 import useBreakpoint from "@/shared/hooks/useBreakpoint";
 import { Carousel } from "@/shared/ui";
 
 interface IProductsCarouselProps {
-  products: IProduct[];
+  products: IStorefrontProductCard[];
   className?: string;
 }
 

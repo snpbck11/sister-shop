@@ -3,17 +3,16 @@
 import { cn } from "@/shared/lib/cn";
 import Image from "next/image";
 import Link from "next/link";
-import { IProduct } from "../model/types";
+import { IStorefrontProductCard } from "../model/types/storefront";
 
 interface IProductCardProps {
-  product: IProduct;
+  product: IStorefrontProductCard;
   className?: string;
 }
 
 export function ProductCard({ product, className }: IProductCardProps) {
-  const { slug, image, hoverImage, title, sizes } = product;
+  const { slug, image, hoverImage, title, priceFrom } = product;
 
-  const cost = sizes[0].price;
   const alt = `Изображение товара ${title}`;
 
   return (
@@ -34,7 +33,7 @@ export function ProductCard({ product, className }: IProductCardProps) {
       <div className="flex flex-col mt-5 items-center">
         <p className="text-white px-3 py-0.5 bg-[#484747] text-xs uppercase">Ограниченный выпуск</p>
         <p className="font-semibold">{title}</p>
-        <p className="text-sm text-gray-500">от {cost} ₽</p>
+        <p className="text-sm text-gray-500">от {priceFrom} ₽</p>
       </div>
     </Link>
   );

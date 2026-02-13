@@ -2,10 +2,18 @@
 
 import { ICategory } from "@/entities/category";
 import { ICollection } from "@/entities/collection";
-import { IProductWithRelations, TCreateProductInput, TProductUpdatebleFields } from "@/entities/product";
+import {
+  createProduct,
+  deleteProduct,
+  getAdminProducts,
+  IAdminProductsPage,
+  IProductWithRelations,
+  IUpdateProductData,
+  patchProduct,
+  TCreateProductInput,
+  TProductUpdatebleFields,
+} from "@/entities/product";
 import { IProductType } from "@/entities/product-type";
-import { createProduct, deleteProduct, patchProduct } from "@/entities/product/api/client";
-import { IUpdateProductData } from "@/entities/product/model/types";
 import { ApiResponse } from "@/shared/api/http/types";
 import { AdminPageLayout, Button, ConfirmModal, Table } from "@/shared/ui";
 import { useMemo, useState } from "react";
@@ -15,34 +23,63 @@ import { ProductDetailsDrawer } from "./ProductDetailsDrawer";
 import { ProductsTableRow } from "./ProductsTableRow";
 
 interface IProductsTableProps {
-  initialProducts: IProductWithRelations[];
+  initialPage: IAdminProductsPage;
   collections: ICollection[];
   categories: ICategory[];
   types: IProductType[];
 }
 
 export function ProductsTable({
-  initialProducts,
+  initialPage,
   categories,
   collections,
   types,
 }: IProductsTableProps) {
-  const [products, setProducts] = useState(initialProducts);
+  const [pageData, setPageData] = useState<IAdminProductsPage>(initialPage);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [productToDelete, setProductToDelete] = useState<IProductWithRelations | null>(null);
   const [isAddProductDrawerOpen, setIsAddProductDrawerOpen] = useState(false);
+  const [isLoadingPage, setIsLoadingPage] = useState(false);
+
+  const products = pageData.items;
 
   const selectedProduct = useMemo(
     () => products.find((p) => p.id === selectedProductId) || null,
     [products, selectedProductId],
   );
 
+  const categoriesOptions = categories.map((c) => ({ value: c.id, label: c.name }));
+  const collectionsOptions = collections.map((c) => ({ value: c.id, label: c.name }));
+  const typesOptions = types.map((t) => ({ value: t.id, label: t.name }));
+
+  const handleOpenDrawer = () => setIsAddProductDrawerOpen(true);
+
+  const loadPage = async (nextPage: number) => {
+    if (isLoadingPage) return;
+    if (nextPage < 1 || nextPage > pageData.meta.pages) return;
+
+    setIsLoadingPage(true);
+    const res = await getAdminProducts({ page: nextPage, limit: pageData.meta.limit });
+
+    if (res.success) {
+      setPageData(res.data);
+      setSelectedProductId(null);
+    }
+
+    setIsLoadingPage(false);
+  };
+
   const addProduct = async (data: TCreateProductInput) => {
     const res = await createProduct(data);
 
-    if (!res.success) return { success: res.success, error: res.error };
+    if (!res.success) throw new Error(res.error);
 
-    setProducts((prev) => [res.data, ...prev]);
+    await loadPage(1);
+
+    setPageData((prev) => ({
+      ...prev,
+      items: [res.data, ...prev.items],
+    }));
 
     return { success: res.success, data: res.data };
   };
@@ -54,35 +91,28 @@ export function ProductsTable({
   ): Promise<ApiResponse<IProductWithRelations>> => {
     const res = await patchProduct(id, { [key]: nextValue });
 
-    if (!res.success) {
-      return { success: res.success, error: res.error };
-    }
+    if (!res.success) throw new Error(res.error);
 
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...res.data } : p)));
+    setPageData((prev) => ({
+      ...prev,
+      items: prev.items.map((p) => (p.id === id ? { ...p, ...res.data } : p)),
+    }));
 
-    return { success: res.success, data: res.data };
+    return { success: true, data: res.data };
   };
 
   const onConfirmDelete = async () => {
     if (!productToDelete) return;
 
-    const { id } = productToDelete;
+    const res = await deleteProduct(productToDelete.id);
 
-    const res = await deleteProduct(id);
+    if (!res.success) throw new Error(res.error);
 
-    if (!res.success) {
-      throw new Error(res.error);
-    }
+    const isLastOnPage = pageData.items.length === 1;
+    const nextPage = isLastOnPage ? Math.max(pageData.meta.page - 1, 1) : pageData.meta.page;
 
-    setProducts((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const categoriesOptions = categories.map((c) => ({ value: c.id, label: c.name }));
-  const collectionsOptions = collections.map((c) => ({ value: c.id, label: c.name }));
-  const typesOptions = types.map((t) => ({ value: t.id, label: t.name }));
-
-  const handleOpenDrawer = () => {
-    setIsAddProductDrawerOpen(true);
+    await loadPage(nextPage);
+    setProductToDelete(null);
   };
 
   return (
@@ -98,7 +128,14 @@ export function ProductsTable({
           </Button>
         </div>
       ) : (
-        <Table tableHead={tableHead}>
+        <Table
+          tableHead={tableHead}
+          pagination={{
+            page: pageData.meta.page,
+            pages: pageData.meta.pages,
+            onChange: loadPage,
+          }}
+          isLoading={isLoadingPage}>
           {products.map((product) => (
             <ProductsTableRow
               key={product.id}
@@ -110,6 +147,7 @@ export function ProductsTable({
           ))}
         </Table>
       )}
+
       <AddProductDrawer
         open={isAddProductDrawerOpen}
         onCreate={addProduct}
@@ -118,6 +156,7 @@ export function ProductsTable({
         categories={categoriesOptions}
         types={typesOptions}
       />
+
       <ProductDetailsDrawer
         open={!!selectedProduct}
         onClose={() => setSelectedProductId(null)}
@@ -126,6 +165,7 @@ export function ProductsTable({
         collections={collectionsOptions}
         updateField={updateField}
       />
+
       <ConfirmModal
         isOpen={!!productToDelete}
         confirmVariant="danger"

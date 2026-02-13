@@ -1,11 +1,16 @@
 "use client";
 
-import { createCategorySchema, ICategory, TCreateCategoryInput } from "@/entities/category";
+import { ICategory, TCreateCategoryInput } from "@/entities/category";
+import { TCreateCollectionInput } from "@/entities/collection";
+import { TCreateCollectionForm } from "@/features/manage-collections/model/formSchema";
 import { ApiResponse } from "@/shared/api/http/types";
-import { FormModal, Input, TextArea } from "@/shared/ui";
+import { deleteFile, uploadFile } from "@/shared/api/storage";
+import { FormModal, ImageUpload, Input, TextArea } from "@/shared/ui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import slugify from "@sindresorhus/slugify";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { createCategoryFormSchema } from "../model/formSchema";
 
 interface IAddCategoryModalProps {
   isOpen: boolean;
@@ -20,9 +25,10 @@ export function AddCategoryModal({ isOpen, onClose, onCreate }: IAddCategoryModa
     register,
     reset,
     handleSubmit,
+    setValue,
     formState: { isSubmitting, errors },
   } = useForm({
-    resolver: zodResolver(createCategorySchema),
+    resolver: zodResolver(createCategoryFormSchema),
   });
 
   const handleClose = () => {
@@ -31,25 +37,50 @@ export function AddCategoryModal({ isOpen, onClose, onCreate }: IAddCategoryModa
     onClose();
   };
 
-  const submit = handleSubmit(async (data: TCreateCategoryInput) => {
-    const res = await onCreate(data);
+  const submit = async (formData: TCreateCollectionForm) => {
+    setError(null);
 
-    if (!res.success) {
-      setError(res.error || "Ошибка при создании категории");
-      return;
+    try {
+      const slug = slugify(formData.name);
+
+      const { image } = formData;
+      const imageUrl = await uploadFile(image, "category", slug);
+
+      if (imageUrl.length === 0) {
+        return setError("Ошибка при загрузке картинки");
+      }
+
+      const collectionData: TCreateCollectionInput = {
+        ...formData,
+        slug,
+        image: imageUrl,
+      };
+
+      const res = await onCreate(collectionData);
+
+      if (!res.success) {
+        await deleteFile(imageUrl);
+        return setError(res.error);
+      }
+
+      onClose();
+      reset();
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Ошибка при создании товара");
+      }
     }
-
-    handleClose();
-    return { succes: true, data: res.data };
-  });
+  };
 
   return (
     <FormModal
       isOpen={isOpen}
       onClose={handleClose}
-      title={"Добавление коллекции"}
+      title={"Добавление категории"}
       isSubmitting={isSubmitting}
-      onSubmit={submit}
+      onSubmit={handleSubmit(submit)}
       error={error}>
       <Input
         label="Название"
@@ -65,6 +96,12 @@ export function AddCategoryModal({ isOpen, onClose, onCreate }: IAddCategoryModa
         placeholder="Описание категории"
         {...register("description")}
         error={errors.description?.message}
+      />
+      <ImageUpload
+        label="Изображение категории"
+        required
+        onChange={(files) => setValue("image", files[0], { shouldValidate: true })}
+        error={errors.image?.message}
       />
     </FormModal>
   );

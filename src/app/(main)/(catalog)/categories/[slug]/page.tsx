@@ -1,26 +1,28 @@
-import { getCategoryWithProducts, getProductTypes } from "@/shared/server/db";
-import { ProductsListing } from "@/widgets/ProductsListing";
+import { getProductTypes } from "@/shared/server/db";
+import { getCategoryPageBySlugService } from "@/shared/server/services/category";
+import { ProductsListingCategory } from "@/widgets/ProductsListing/ui/ProductsListingCategory";
 
 export default async function CategoriesPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   const [categoriesWithProducts, types] = await Promise.all([
-    getCategoryWithProducts(slug),
+    getCategoryPageBySlugService({ slug }),
     getProductTypes(),
   ]);
 
-  if (!categoriesWithProducts) {
+  if (!categoriesWithProducts.success) {
     return <p className="text-center w-full mt-12">Товары по категории не найдены</p>;
   }
 
-  const { category, products } = categoriesWithProducts;
+  const { category, products } = categoriesWithProducts.data;
 
   return (
-    <ProductsListing
+    <ProductsListingCategory
       title={category.name}
       description={category.description}
       types={types}
-      products={products}
+      initial={products}
+      slug={slug}
     />
   );
 }

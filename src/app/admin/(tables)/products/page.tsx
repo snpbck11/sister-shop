@@ -1,9 +1,10 @@
 import { ProductsTable } from "@/features/manage-products";
-import { getCategories, getCollections, getProducts, getProductTypes } from "@/shared/server/db";
+import { getCategories, getCollections, getProductTypes } from "@/shared/server/db";
+import { getAdminProductsPage } from "@/shared/server/db/repos/product";
 
 export default async function AdminProductsPage() {
-  const [products, collections, categories, types] = await Promise.all([
-    getProducts(),
+  const [productsPage, collections, categories, types] = await Promise.all([
+    getAdminProductsPage({page: 1, limit: 4}),
     getCollections(),
     getCategories(),
     getProductTypes(),
@@ -11,7 +12,7 @@ export default async function AdminProductsPage() {
 
   return (
     <ProductsTable
-      initialProducts={products}
+      initialPage={productsPage}
       collections={collections}
       categories={categories}
       types={types}

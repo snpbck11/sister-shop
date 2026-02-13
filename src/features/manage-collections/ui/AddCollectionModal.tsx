@@ -67,7 +67,7 @@ export function AddCollectionModal({ isOpen, onClose, onCreate }: IAddCollection
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Ошибка при создании товара");
+        setError("Ошибка при создании коллекции");
       }
     }
   };

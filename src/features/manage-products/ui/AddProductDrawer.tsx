@@ -14,13 +14,13 @@ import {
   TextArea,
 } from "@/shared/ui";
 import { MultiSelect } from "@/shared/ui/Controls";
+import { LoadingLayout } from "@/shared/ui/Layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import slugify from "@sindresorhus/slugify";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { createProductFormSchema, TCreateProductForm } from "../model/formSchema";
 import { SizesManager } from "./SizesManager";
-import { LoadingLayout } from "@/shared/ui/Layouts";
 
 interface IAddProductDrawerProps {
   open: boolean;
@@ -41,6 +41,8 @@ export default function AddProductDrawer({
 }: IAddProductDrawerProps) {
   const [error, setError] = useState<string | null>(null);
 
+  const defaultCollection = Number(collections[0]?.value);
+
   const {
     register,
     reset,
@@ -52,8 +54,8 @@ export default function AddProductDrawer({
     resolver: zodResolver(createProductFormSchema),
     defaultValues: {
       gallery: [],
-      typeId: Number(types[0].value),
-      collections: [],
+      typeId: Number(types[0]?.value),
+      collections: [defaultCollection],
       sizes: [{ name: "", description: "", price: 0 }],
       title: "",
       description: "",

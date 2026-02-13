@@ -3,7 +3,7 @@ import { request } from "../http/request";
 export async function deleteFiles(urls: string[]): Promise<number> {
   if (!urls.length) return 0;
 
-  const res = await request<{ removed: number }>("/api/images/delete", {
+  const res = await request<{ removed: number }>("/api/admin/images/delete", {
     method: "DELETE",
     body: JSON.stringify({ urls }),
   });
@@ -25,7 +25,7 @@ export async function uploadFiles(files: File[], folder: string, slug?: string):
   formData.append("folder", folder);
   if (slug) formData.append("slug", slug);
 
-  const res = await request<{ publicUrls: string[] }>("/api/images/upload", {
+  const res = await request<{ publicUrls: string[] }>("/api/admin/images/upload", {
     method: "POST",
     body: formData,
   });

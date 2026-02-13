@@ -31,7 +31,7 @@ export function CollectionsTable({ initialCollections }: ICollectionsTableProps)
   const addCollection = async (data: TCreateCollectionInput) => {
     const res = await createCollection(data);
 
-    if (!res.success) return { success: res.success, error: res.error };
+    if (!res.success) throw new Error(res.error);
 
     setCollections((prev) => [res.data, ...prev]);
 
@@ -46,7 +46,7 @@ export function CollectionsTable({ initialCollections }: ICollectionsTableProps)
     const res = await patchCollection(id, { [key]: nextValue });
 
     if (!res.success) {
-      return { success: res.success, error: res.error };
+      throw new Error(res.error);
     }
 
     setCollections((prev) => prev.map((p) => (p.id === id ? { ...p, ...res.data } : p)));
@@ -60,7 +60,7 @@ export function CollectionsTable({ initialCollections }: ICollectionsTableProps)
     const { id } = collectionToDelete;
 
     const res = await deleteCollection(id);
-    
+
     if (!res.success) {
       throw new Error(res.error);
     }

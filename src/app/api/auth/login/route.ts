@@ -1,4 +1,4 @@
-import { loginAdminService } from "@/shared/server/services";
+import { loginAdminService } from "@/shared/server/services/auth";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {

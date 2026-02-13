@@ -1,7 +1,10 @@
 "use client";
 
-import { IProductWithRelations, TProductUpdatebleFields } from "@/entities/product";
-import { IUpdateProductData } from "@/entities/product/model/types";
+import {
+  IProductWithRelations,
+  IUpdateProductData,
+  TProductUpdatebleFields,
+} from "@/entities/product";
 import { ApiResponse } from "@/shared/api/http/types";
 import { deleteFile, uploadFiles } from "@/shared/api/storage";
 import { updateFile } from "@/shared/api/storage/client";

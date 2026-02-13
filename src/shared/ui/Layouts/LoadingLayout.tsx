@@ -1,10 +1,10 @@
 import { Loader } from "lucide-react";
 
 interface ILoadingLayoutProps {
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-export function LoadingLayout({ isLoading }: ILoadingLayoutProps) {
+export function LoadingLayout({ isLoading = false }: ILoadingLayoutProps) {
   if (!isLoading) {
     return null;
   }

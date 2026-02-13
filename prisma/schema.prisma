@@ -58,7 +58,8 @@ model Category {
   slug        String   @unique
   name        String
   description String
-
+  image       String
+  
   products    Product[]
 
   createdAt   DateTime @default(now()) @map("created_at")
