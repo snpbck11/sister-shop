@@ -15,7 +15,7 @@ export function Table({ tableHead, children, pagination, isLoading }: ITableProp
     <div className="flex flex-col bg-admin-sidebar-background rounded-lg shadow-sm border border-admin-border overflow-hidden h-full">
       <div className="flex-1 h-full overflow-auto relative">
         <LoadingLayout isLoading={isLoading} />
-        <table>
+        <table className="w-full">
           <thead className="sticky top-0 z-10 border-b border-admin-border bg-admin-background">
             <tr>
               {tableHead.map((item, index) => (

@@ -42,7 +42,7 @@ export function AddToCartForm({
       title,
       image,
       price: selectedSize.price,
-      size: selectedSize.name,
+      size: selectedSize,
     });
 
     setTimeout(() => {

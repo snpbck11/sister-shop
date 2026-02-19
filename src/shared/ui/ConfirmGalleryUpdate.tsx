@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import { ChangeEventHandler, useEffect, useRef, useState } from "react";
+import { ApiResponse } from "../api/http/types";
 import { DEFAULT_MAX } from "../config/storage";
 import { Button, DeleteButton } from "./Buttons";
 import { FieldError } from "./Controls/shared/FieldError";
@@ -13,7 +14,7 @@ type IConfirmGalleryUpdateProps = {
   label?: string;
   value: string[];
   onAddImagesAction: (files: File[]) => Promise<void>;
-  onRemoveImageAction: (url: string) => Promise<void>;
+  onRemoveImageAction: (url: string) => Promise<ApiResponse<number>>;
   disabled?: boolean;
   maxImages?: number;
   maxSizeBytes?: number;
@@ -97,9 +98,16 @@ export function ConfirmGalleryUpdate({
   };
 
   const confirmDelete = async () => {
-    if (!urlToDelete) return;
-    await onRemoveImageAction(urlToDelete);
+    if (!urlToDelete) return { ok: false, error: "Нечего удалять" };
+    const res = await onRemoveImageAction(urlToDelete);
+
+    if (!res.success) {
+      setError(res.error);
+      return { ok: res.success, error: res.error };
+    }
     setUrlToDelete(null);
+
+    return { ok: res.success };
   };
 
   useEffect(() => {
@@ -128,7 +136,7 @@ export function ConfirmGalleryUpdate({
                 className="absolute top-2 right-2 hidden group-hover:block"
               />
             )}
-          </div>  
+          </div>
         ))}
 
         {pendingPreviews.map((preview, index) => (

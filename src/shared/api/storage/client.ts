@@ -1,7 +1,8 @@
 import { request } from "../http/request";
+import { ApiResponse } from "../http/types";
 
-export async function deleteFiles(urls: string[]): Promise<number> {
-  if (!urls.length) return 0;
+export async function deleteFiles(urls: string[]): Promise<ApiResponse<number>> {
+  if (!urls.length) return { success: false, error: "Нет ссылок для удаления" };
 
   const res = await request<{ removed: number }>("/api/admin/images/delete", {
     method: "DELETE",
@@ -9,11 +10,11 @@ export async function deleteFiles(urls: string[]): Promise<number> {
   });
 
   if (!res.success) throw new Error(res.error);
-  return res.data.removed;
+  return { success: true, data: res.data.removed };
 }
 
-export async function deleteFile(url: string): Promise<number> {
-  if (!url) return 0;
+export async function deleteFile(url: string): Promise<ApiResponse<number>> {
+  if (!url) return { success: false, error: "Нет ссылки для удаления" };
   return await deleteFiles([url]);
 }
 

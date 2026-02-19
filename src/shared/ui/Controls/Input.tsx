@@ -1,16 +1,11 @@
 import { cn } from "@/shared/lib/cn";
-import { forwardRef, InputHTMLAttributes } from "react";
+import { forwardRef } from "react";
 import { controlStyles } from "./shared/controlStyles";
 import { FieldError } from "./shared/FieldError";
 import { InputLoader } from "./shared/InputLoader";
 import { Label } from "./shared/Label";
+import { IInputProps } from "./shared/types";
 
-export interface IInputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-  required?: boolean;
-  loading?: boolean;
-}
 
 export const Input = forwardRef<HTMLInputElement, IInputProps>(
   ({ label, error, required, className, id, loading, type, ...props }, ref) => {

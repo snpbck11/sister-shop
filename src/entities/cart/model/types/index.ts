@@ -1,10 +1,12 @@
+import { IProductSize } from "@/entities/product-size";
+
 export interface ICartItem {
   id: number;
   slug: string;
   title: string;
   image: string;
   price: number;
-  size: string;
+  size: IProductSize;
   quantity: number;
 }
 

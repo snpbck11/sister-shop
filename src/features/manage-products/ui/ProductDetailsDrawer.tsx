@@ -54,11 +54,13 @@ export function ProductDetailsDrawer({
   const onDeleteGalleryImage = async (url: string) => {
     const remove = await deleteFile(url);
 
-    if (!remove) return;
+    if (!remove.success) return { success: remove.success, error: remove.error };
 
     const updated = product?.gallery.filter((item) => item !== url);
 
     await safeUpdate("gallery", updated);
+
+    return { success: remove.success, data: remove.data };
   };
 
   const onSaveImage = async (file: File, field: "hoverImage" | "image") => {

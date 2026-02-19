@@ -4,7 +4,7 @@ import { getAdminProductsPage } from "@/shared/server/db/repos/product";
 
 export default async function AdminProductsPage() {
   const [productsPage, collections, categories, types] = await Promise.all([
-    getAdminProductsPage({page: 1, limit: 4}),
+    getAdminProductsPage({page: 1, limit: 20}),
     getCollections(),
     getCategories(),
     getProductTypes(),

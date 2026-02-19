@@ -241,11 +241,12 @@ export function ProductGallery({ images, title }: IProductGalleryProps) {
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
+            data-lock-scroll
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="hide-overflow fixed inset-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-white/80 dark:bg-black/80 backdrop-blur-sm"
             onClick={closeGallery}>
             <div
               className={cn(
@@ -306,7 +307,6 @@ export function ProductGallery({ images, title }: IProductGalleryProps) {
                   </motion.div>
                 </motion.div>
               </AnimatePresence>
-
               <div className="absolute bottom-8 left-0 right-0 flex justify-center">
                 <div className="flex items-center gap-4">
                   {len > 1 && (
@@ -323,7 +323,6 @@ export function ProductGallery({ images, title }: IProductGalleryProps) {
                       <ChevronLeft className="w-6 h-6 text-background" />
                     </motion.button>
                   )}
-
                   <motion.button
                     type="button"
                     onClick={(e) => {
@@ -336,7 +335,6 @@ export function ProductGallery({ images, title }: IProductGalleryProps) {
                     aria-label="Закрыть">
                     <X className="w-8 h-8 text-background" />
                   </motion.button>
-
                   {len > 1 && (
                     <motion.button
                       type="button"

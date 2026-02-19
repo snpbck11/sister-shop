@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Button } from "../Buttons";
 import { Modal } from "./Modal";
 
+type ConfirmResult = { ok: true } | { ok: false; error: string };
+
 interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
@@ -11,7 +13,7 @@ interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   confirmVariant?: "primary" | "secondary" | "danger";
-  onConfirm: () => Promise<unknown>;
+  onConfirm: () => Promise<ConfirmResult>;
   onClose: () => void;
 }
 
@@ -29,20 +31,19 @@ export function ConfirmModal({
   const [error, setError] = useState<string | null>(null);
 
   const handleConfirm = async () => {
-    try {
-      setError(null);
-      setLoading(true);
-      await onConfirm();
-      onClose();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("Произошла ошибка. Попробуйте ещё раз");
-      }
-    } finally {
-      setLoading(false);
+    setError(null);
+    setLoading(true);
+
+    const res = await onConfirm();
+
+    setLoading(false);
+
+    if (!res.ok) {
+      setError(res.error);
+      return;
     }
+
+    onClose();
   };
 
   const handleClose = () => {

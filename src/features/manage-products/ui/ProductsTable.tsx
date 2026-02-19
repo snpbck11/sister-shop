@@ -72,16 +72,11 @@ export function ProductsTable({
   const addProduct = async (data: TCreateProductInput) => {
     const res = await createProduct(data);
 
-    if (!res.success) throw new Error(res.error);
+    if (!res.success) return res;
 
     await loadPage(1);
 
-    setPageData((prev) => ({
-      ...prev,
-      items: [res.data, ...prev.items],
-    }));
-
-    return { success: res.success, data: res.data };
+    return res;
   };
 
   const updateField = async <K extends TProductUpdatebleFields>(
@@ -102,17 +97,19 @@ export function ProductsTable({
   };
 
   const onConfirmDelete = async () => {
-    if (!productToDelete) return;
+    if (!productToDelete) return { ok: false, error: "Товар не выбран" };
 
     const res = await deleteProduct(productToDelete.id);
 
-    if (!res.success) throw new Error(res.error);
+    if (!res.success) return { ok: res.success, error: res.error };
 
     const isLastOnPage = pageData.items.length === 1;
     const nextPage = isLastOnPage ? Math.max(pageData.meta.page - 1, 1) : pageData.meta.page;
 
     await loadPage(nextPage);
     setProductToDelete(null);
+
+    return { ok: res.success };
   };
 
   return (

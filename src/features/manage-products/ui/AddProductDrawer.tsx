@@ -94,7 +94,7 @@ export default function AddProductDrawer({
       };
 
       const res = await onCreate(productData);
-
+      
       if (!res.success) {
         await deleteFiles(allUrls);
         return setError(res.error);
