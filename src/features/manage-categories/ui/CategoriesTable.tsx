@@ -44,15 +44,17 @@ export function CategoriesTable({ initialCategories }: ICategoriesTableProps) {
   };
 
   const onConfirmDelete = async () => {
-    if (!categoryToDelete) return;
+    if (!categoryToDelete) return { ok: false, error: "Категория не выбрана" };
 
     const { id } = categoryToDelete;
 
     const res = await deleteCategory(id);
 
-    if (!res.success) throw new Error(res.error);
+    if (!res.success) return { ok: res.success, error: res.error };
 
     setCategories((prev) => prev.filter((p) => p.id !== id));
+
+    return { ok: res.success };
   };
 
   return (

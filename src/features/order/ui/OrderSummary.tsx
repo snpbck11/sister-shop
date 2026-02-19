@@ -1,29 +1,23 @@
 "use client";
 
-import { useCartStore } from "@/features/cart";
-import { ROUTES } from "@/shared/config/routes";
-import { ButtonLink } from "@/shared/ui";
+import { ICartItem } from "@/entities/cart";
 import Image from "next/image";
 import Link from "next/link";
 
-export function OrderSummary() {
-  const { items, totalItems, totalPrice, hasHydrated } = useCartStore();
+interface IOrderSummaryProps {
+  items: ICartItem[];
+  totalItems: number;
+  totalPrice: number;
+  hasHydrated: boolean;
+}
 
+export function OrderSummary({ items, totalItems, totalPrice, hasHydrated }: IOrderSummaryProps) {
   if (!hasHydrated) {
     return null;
   }
 
-  if (items.length === 0) {
-    return (
-      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 text-center">
-        <p className="text-gray-500">Корзина пуста</p>
-        <ButtonLink href={ROUTES.collections.allDesigns} text="Перейти к покупкам" />
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 space-y-6 sticky top-3">
+    <div className="bg-admin-background rounded-lg p-6 space-y-6 sticky top-3">
       <h2 className="text-xl font-semibold">Ваш заказ</h2>
       <div className="space-y-4">
         {items.map((item) => (
@@ -41,7 +35,7 @@ export function OrderSummary() {
                 {item.title}
               </Link>
               <p className="text-sm text-gray-500">
-                {item.size} × {item.quantity}
+                {item.size.name} × {item.quantity}
               </p>
               <p className="text-sm font-semibold">{item.price * item.quantity} ₽</p>
             </div>

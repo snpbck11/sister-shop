@@ -8,7 +8,7 @@ export async function getCategoryPageBySlugService(params: {
   cursor?: string | null;
   limit?: number;
 }): Promise<ApiResponse<ICategoryPage>> {
-  const { slug, cursor, limit = 24 } = params;
+  const { slug, cursor, limit = 12 } = params;
 
   const category = await getCategoryBySlug(slug);
   if (!category) {

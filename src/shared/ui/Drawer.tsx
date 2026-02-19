@@ -61,8 +61,9 @@ export function Drawer({
     <AnimatePresence>
       {open && (
         <motion.div
+          data-lock-scroll
           className={cn(
-            "fixed hide-overflow inset-0 z-50 flex overflow-hidden h-screen",
+            "fixed inset-0 z-50 flex overflow-hidden h-screen",
             anchor === "left" && "justify-start",
             anchor === "right" && "justify-end",
             anchor === "top" && "flex-col items-start",

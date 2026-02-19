@@ -10,7 +10,7 @@ export function TableRow({ children, className }: ITableRowProps) {
   return (
     <tr
       className={cn(
-        "border-b border-admin-border last:border-0",
+        "border-b border-admin-border",
         "hover:bg-admin-background transition-colors",
         className,
       )}>

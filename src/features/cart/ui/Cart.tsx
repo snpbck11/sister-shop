@@ -1,5 +1,3 @@
-"use client";
-
 import { CartButton } from "./CartButton";
 import { CartDrawer } from "./CartDrawer";
 

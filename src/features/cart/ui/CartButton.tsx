@@ -1,7 +1,7 @@
 "use client";
 
+import { useCartStore } from "@/entities/cart";
 import { ShoppingBag } from "lucide-react";
-import { useCartStore } from "../model/cartStore";
 
 export function CartButton() {
   const { totalItems, openCart } = useCartStore();

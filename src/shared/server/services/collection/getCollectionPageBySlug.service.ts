@@ -7,7 +7,7 @@ export async function getCollectionPageBySlug(params: {
   cursor?: string | null;
   limit?: number;
 }): Promise<ApiResponse<ICollectionPage>> {
-  const { slug, cursor, limit = 24 } = params;
+  const { slug, cursor, limit = 12 } = params;
 
   const collection = await getCollectionBySlug(slug);
   if (!collection) {

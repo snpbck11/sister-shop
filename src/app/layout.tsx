@@ -41,9 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru">
-      <body className={`${oswald.className} antialiased bg-background`}>
-        <main>{children}</main>
-      </body>
+      <body className={`${oswald.className} antialiased bg-background`}>{children}</body>
     </html>
   );
 }

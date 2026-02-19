@@ -55,17 +55,17 @@ export function CollectionsTable({ initialCollections }: ICollectionsTableProps)
   };
 
   const onConfirmDelete = async () => {
-    if (!collectionToDelete) return;
+    if (!collectionToDelete) return { ok: false, error: "Коллекция не выбрана" };
 
     const { id } = collectionToDelete;
 
     const res = await deleteCollection(id);
 
-    if (!res.success) {
-      throw new Error(res.error);
-    }
+    if (!res.success) return { ok: res.success, error: res.error };
 
     setCollections((prev) => prev.filter((p) => p.id !== id));
+
+    return { ok: res.success };
   };
 
   return (

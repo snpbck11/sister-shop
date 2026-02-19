@@ -3,7 +3,7 @@
 import { Button } from "@/shared/ui";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useCartStore } from "../model/cartStore";
+import { useCartStore } from "../../../entities/cart/model/cartStore";
 
 export function CartSummary() {
   const { totalItems, totalPrice, closeCart } = useCartStore();
@@ -15,7 +15,7 @@ export function CartSummary() {
   };
 
   return (
-    <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-4">
+    <div className="border-t border-admin-border p-4 space-y-4">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,7 +35,6 @@ export function CartSummary() {
           Оформить заказ
         </Button>
       </motion.div>
-
       <p className="text-xs text-center text-gray-500">
         Доставка и способы оплаты указываются при оформлении заказа
       </p>

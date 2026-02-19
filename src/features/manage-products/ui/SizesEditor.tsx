@@ -21,11 +21,20 @@ export function SizesEditor({ value, onChange }: ISizesEditorProps) {
   const [error, setError] = useState<string | null>(null);
 
   const confirmDelete = async () => {
+    if (sizeToDelete == null) {
+      return { ok: false, error: "Размер не выбран" } as const;
+    }
+
     const res = await onChange(value.filter((size) => size.id !== sizeToDelete));
 
     if (!res?.success) {
-      setError(res?.error || "Ошибка при удалении");
+      const message = res?.error ?? "Ошибка при удалении";
+      setError(message);
+      return { ok: false, error: message } as const;
     }
+
+    setError(null);
+    return { ok: true } as const;
   };
 
   const openAdd = () => {

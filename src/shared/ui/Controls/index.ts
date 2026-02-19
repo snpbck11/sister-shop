@@ -1,4 +1,5 @@
 export { Input } from "./Input";
+export { MaskedInput } from "./MaskedInput";
 export { MultiSelect } from "./MultiSelect";
 export { Radio } from "./Radio";
 export { Select } from "./Select";

@@ -16,82 +16,194 @@ model ProductType {
 }
 
 model Product {
-  id          Int         @id @default(autoincrement())
-  slug        String      @unique
-  title       String   
-  description String?   
-  image       String   
-  hoverImage  String      @map("hover_image")
-  gallery     String[]    @default([])
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  description String?
+  image       String
+  hoverImage  String   @map("hover_image")
+  gallery     String[] @default([])
 
-  typeId      Int         @map("type_id")
-  type        ProductType @relation(fields: [typeId], references: [id], onDelete: Restrict)
+  typeId Int         @map("type_id")
+  type   ProductType @relation(fields: [typeId], references: [id], onDelete: Restrict)
 
-  categoryId  Int         @map("category_id")
-  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
 
   collections ProductCollection[]
   sizes       ProductSize[]
 
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+  OrderItem OrderItem[]
 
-  @@map("products")
   @@index([categoryId])
+  @@map("products")
 }
 
 model ProductSize {
   id          Int     @id @default(autoincrement())
   productId   Int     @map("product_id")
-  name        String 
+  name        String
   description String?
-  price       Int    
+  price       Int
 
-  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  OrderItem OrderItem[]
 
-  @@map("product_sizes")
   @@index([productId])
+  @@map("product_sizes")
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
+  id          Int    @id @default(autoincrement())
+  slug        String @unique
   name        String
   description String
   image       String
-  
-  products    Product[]
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  products Product[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("categories")
 }
 
 model Collection {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
+  id          Int    @id @default(autoincrement())
+  slug        String @unique
   name        String
   description String
   image       String
 
   products ProductCollection[]
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("collections")
 }
 
 model ProductCollection {
-  productId    Int        @map("product_id")
-  collectionId Int        @map("collection_id")
+  productId    Int @map("product_id")
+  collectionId Int @map("collection_id")
 
-  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@id([productId, collectionId])
-  @@map("product_collections")
   @@index([collectionId])
   @@index([productId])
+  @@map("product_collections")
+}
+
+// Orders & Pyaments
+
+enum OrderStatus {
+  pending_payment
+  paid
+  canceled
+  fulfilled
+  refunded
+}
+
+enum PaymentProvider {
+  yookassa
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  canceled
+  refunded
+}
+
+model Order {
+  id     String      @id @default(uuid())
+  status OrderStatus @default(pending_payment)
+
+  userId String? @map("user_id")
+
+  currency    String @default("RUB")
+  amountTotal Int    @map("amount_total")
+
+  customerName String? @map("customer_name")
+  email        String? @map("email")
+  phone        String? @map("phone")
+
+  deliveryType String? @map("delivery_type")
+  addressLine  String? @map("address_line")
+  city         String? @map("city")
+  postalCode   String? @map("postal_code")
+
+  comment String? @map("comment")
+
+  items    OrderItem[]
+  payments Payment[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([userId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId Int     @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  sizeId Int         @map("size_id")
+  size   ProductSize @relation(fields: [sizeId], references: [id], onDelete: Restrict)
+
+  qty Int
+
+  priceEach  Int @map("price_each")
+  amountLine Int @map("amount_line")
+
+  titleSnapshot    String? @map("title_snapshot")
+  sizeNameSnapshot String? @map("size_name_snapshot")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([sizeId])
+  @@map("order_items")
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  provider PaymentProvider @default(yookassa)
+  status   PaymentStatus   @default(pending)
+
+  currency String @default("RUB")
+  amount   Int    @map("amount")
+
+  idempotenceKey String @unique @map("idempotence_key")
+
+  externalPaymentId String? @unique @map("external_payment_id")
+  confirmationUrl   String? @map("confirmation_url")
+
+  rawCreateResponse Json? @map("raw_create_response")
+  rawLastWebhook    Json? @map("raw_last_webhook")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("payments")
 }

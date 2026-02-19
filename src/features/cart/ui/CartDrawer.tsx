@@ -2,10 +2,10 @@
 
 import { CloseButton, Drawer } from "@/shared/ui";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCartStore } from "../model/cartStore";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { EmptyCart } from "./EmptyCart";
+import { useCartStore } from "@/entities/cart";
 
 export function CartDrawer() {
   const { items, totalItems, isOpen, closeCart } = useCartStore();

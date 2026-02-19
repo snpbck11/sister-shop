@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   } catch (e) {
     console.error("POST /api/admin/products error:", e);
     return NextResponse.json(
-      { success: false, error: "Ошибка при создании товара" },
+      { success: false, error: e instanceof Error ? e.message : "Ошибка при создании товара" },
       { status: 500 },
     );
   }

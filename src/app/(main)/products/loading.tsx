@@ -3,7 +3,7 @@ import { Skeleton } from "@/shared/ui";
 export default function Loading() {
   return (
     <div className="w-full mx-auto lg:py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(550px,680px)_minmax(350px,450px)] gap-12 justify-center mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(550px,680px)_minmax(350px,450px)] gap-12 justify-center mb-12">
         <div className="flex flex-col justify-center items-center gap-4">
           <Skeleton className="w-60 h-8 sm:hidden mt-3" />
           <Skeleton className="aspect-square w-full lg:max-w-137.5" />

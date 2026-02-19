@@ -24,8 +24,12 @@ export function AdminSidebar() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await logout()
+    const res = await logout();
+
+    if (!res.success) return { ok: res.success, error: res.error };
     router.push("/login");
+
+    return { ok: res.success };
   };
 
   return (
@@ -36,7 +40,7 @@ export function AdminSidebar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
-            
+
             return (
               <li key={item.href}>
                 <Tooltip

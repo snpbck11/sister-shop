@@ -1,10 +1,11 @@
 "use client";
 
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { ICartItem } from "@/entities/cart";
+import { DeleteButton, IconButton } from "@/shared/ui";
+import { Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCartStore } from "../model/cartStore";
-import { ICartItem } from "../model/types";
+import { useCartStore } from "../../../entities/cart/model/cartStore";
 
 interface ICartItemProps {
   item: ICartItem;
@@ -14,15 +15,15 @@ export function CartItem({ item }: ICartItemProps) {
   const { updateQuantity, removeItem, closeCart } = useCartStore((state) => state);
 
   const handleIncrement = () => {
-    updateQuantity(item.id, item.size, item.quantity + 1);
+    updateQuantity(item.id, item.size.id, item.quantity + 1);
   };
 
   const handleDecrement = () => {
-    updateQuantity(item.id, item.size, item.quantity - 1);
+    updateQuantity(item.id, item.size.id, item.quantity - 1);
   };
 
   const handleRemove = () => {
-    removeItem(item.id, item.size);
+    removeItem(item.id, item.size.id);
   };
 
   return (
@@ -32,7 +33,6 @@ export function CartItem({ item }: ICartItemProps) {
           <Image src={item.image} alt={item.title} fill className="object-cover" sizes="100px" />
         </div>
       </Link>
-
       <div className="flex flex-col flex-1 gap-2">
         <div className="flex justify-between items-start">
           <div>
@@ -42,35 +42,16 @@ export function CartItem({ item }: ICartItemProps) {
               onClick={closeCart}>
               {item.title}
             </Link>
-            <p className="text-sm text-gray-500">
-              Размер: {item.size}
-            </p>
+            <p className="text-sm text-gray-500">Размер: {item.size.name}</p>
           </div>
-          <button
-            onClick={handleRemove}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
-            aria-label="Удалить из корзины">
-            <Trash2 className="w-4 h-4 text-gray-500" />
-          </button>
+          <DeleteButton onClick={handleRemove} />
         </div>
-
         <div className="flex justify-between items-center mt-auto">
           <div className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 rounded">
-            <button
-              onClick={handleDecrement}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Уменьшить количество">
-              <Minus className="w-4 h-4" />
-            </button>
+            <IconButton icon={Minus} onClick={handleDecrement} />
             <span className="px-3 font-medium min-w-8 text-center">{item.quantity}</span>
-            <button
-              onClick={handleIncrement}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Увеличить количество">
-              <Plus className="w-4 h-4" />
-            </button>
+            <IconButton icon={Plus} onClick={handleIncrement} />
           </div>
-
           <p className="font-semibold">{item.price * item.quantity} ₽</p>
         </div>
       </div>

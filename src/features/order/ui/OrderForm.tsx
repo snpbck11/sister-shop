@@ -1,145 +1,184 @@
 "use client";
 
-import { Button, Input } from "@/shared/ui";
+import { ICartItem } from "@/entities/cart";
+import { createOrder, DELIVERY_TYPE, PAYMENT_METHOD } from "@/entities/order";
+import { createPayment } from "@/entities/payment";
+import { Button, ErrorMessage, Input, TextArea } from "@/shared/ui";
+import { MaskedInput } from "@/shared/ui/Controls";
+import { LoadingLayout } from "@/shared/ui/Layouts";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { OrderFormSchema, orderFormSchema } from "../model/schema";
-import { IOrderFormData } from "../model/types";
+import { useEffect, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { createOrderFormSchema, TCreateOrderForm } from "../model/formSchema";
 import { OrderFormRadio } from "./OrderFormRadio";
 
 interface IOrderFormProps {
-  onSubmit: (data: IOrderFormData) => void;
-  isSubmitting?: boolean;
+  items: ICartItem[];
+  clearCart: () => void;
+  totalItems: number;
+  totalPrice: number;
 }
 
-export function OrderForm({ onSubmit, isSubmitting = false }: IOrderFormProps) {
+export function OrderForm({ items, totalItems, totalPrice }: IOrderFormProps) {
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+  const [error, setError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<OrderFormSchema>({
-    resolver: zodResolver(orderFormSchema),
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<TCreateOrderForm>({
+    resolver: zodResolver(createOrderFormSchema),
+    shouldUnregister: true,
     defaultValues: {
-      firstName: "",
       phone: "",
-      email: "",
-      city: "",
-      address: "",
-      deliveryMethod: "courier",
-      paymentMethod: "card",
-      comment: "",
+      deliveryType: DELIVERY_TYPE.COURIER,
+      paymentMethod: PAYMENT_METHOD.CARD,
     },
   });
 
+  const deliveryType = useWatch({ control, name: "deliveryType" });
+  const showAddress = deliveryType !== DELIVERY_TYPE.PICKUP;
+
+  const onSubmit = async (formData: TCreateOrderForm) => {
+    setError(null);
+    const orderData = {
+      ...formData,
+      items: items.map((item) => ({
+        sizeId: item.size.id,
+        qty: item.quantity,
+      })),
+      totalPrice,
+      totalItems,
+    };
+
+    const res = await createOrder(orderData);
+
+    if (!res.success) {
+      setError(res.error);
+      return;
+    }
+
+    const paymentResult = await createPayment(res.data);
+
+    if (!paymentResult.success) {
+      setError(paymentResult.error);
+      return;
+    }
+
+    setRedirectUrl(paymentResult.data.confirmationUrl);
+  };
+
+  useEffect(() => {
+    if (redirectUrl) {
+      window.location.replace(redirectUrl);
+    }
+  }, [redirectUrl]);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="space-y-4">
+      <LoadingLayout isLoading={isSubmitting} />
+      <fieldset disabled={isSubmitting} className="space-y-4">
+        {error && <ErrorMessage error={error} />}
         <h2 className="text-xl font-semibold">Контактная информация</h2>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            id="firstName"
+            id="customerName"
             label="Имя"
             required
-            {...register("firstName")}
-            error={errors.firstName?.message}
+            {...register("customerName")}
+            error={errors.customerName?.message}
           />
         </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            type="tel"
-            id="phone"
-            label="Телефон"
-            required
-            placeholder="+7 (___) ___-__-__"
-            {...register("phone")}
-            error={errors.phone?.message}
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <MaskedInput
+                id="phone"
+                mask="+{7} (000) 000-00-00"
+                value={field.value ?? ""}
+                onAccept={(value) => field.onChange(value)}
+                inputRef={field.ref}
+                required
+                type="tel"
+                label="Телефон"
+                placeholder="+7 (___) ___-__-__"
+                error={errors.phone?.message}
+              />
+            )}
           />
-
-          <Input
-            type="email"
-            id="email"
-            label="Email"
-            required
-            {...register("email")}
-            error={errors.email?.message}
-          />
+          <Input id="email" label="Email" {...register("email")} error={errors.email?.message} />
         </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Адрес доставки</h2>
-
-        <Input
-          id="city"
-          label="Город"
-          required
-          {...register("city")}
-          error={errors.city?.message}
-        />
-
-        <Input
-          id="address"
-          label="Адрес"
-          required
-          placeholder="Улица, дом, квартира"
-          {...register("address")}
-          error={errors.address?.message}
-        />
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Способ доставки</h2>
-        <div className="space-y-2">
-          <OrderFormRadio
-            {...register("deliveryMethod")}
-            value="courier"
-            label="Курьером"
-            description="Доставка по городу 1-2 дня"
-          />
-          <OrderFormRadio
-            {...register("deliveryMethod")}
-            value="post"
-            label="Почтой России"
-            description="Доставка 5-14 дней"
-          />
-          <OrderFormRadio
-            {...register("deliveryMethod")}
-            value="pick"
-            label="Самовывоз"
-            description="Доставка по городу 1-2 дня"
-          />
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Способ получения</h2>
+          <div className="space-y-2">
+            <OrderFormRadio
+              {...register("deliveryType")}
+              value={DELIVERY_TYPE.COURIER}
+              label="Курьером"
+              description="Доставка по городу 1-2 дня"
+            />
+            <OrderFormRadio
+              {...register("deliveryType")}
+              value={DELIVERY_TYPE.POST}
+              label="Почтой России"
+              description="Доставка 5-14 дней"
+            />
+            <OrderFormRadio
+              {...register("deliveryType")}
+              value={DELIVERY_TYPE.PICKUP}
+              label="Самовывоз"
+            />
+          </div>
         </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Способ оплаты</h2>
-        <div className="space-y-2">
-          <OrderFormRadio {...register("paymentMethod")} value="card" label="Картой онлайн" />
-          <OrderFormRadio {...register("paymentMethod")} value="online" label="Онлайн-платеж" />
-          <OrderFormRadio
-            {...register("paymentMethod")}
-            value="cash"
-            label="Наличными при получении"
-          />
+        {showAddress && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Адрес доставки</h2>
+            <Input
+              id="city"
+              label="Город"
+              required
+              {...register("city")}
+              error={errors.city?.message}
+            />
+            <Input
+              id="addressLine"
+              label="Адрес"
+              required
+              placeholder="Улица, дом, квартира"
+              {...register("addressLine")}
+              error={errors.addressLine?.message}
+            />
+          </div>
+        )}
+        {/* <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Способ оплаты</h2>
+          <div className="space-y-2">
+            <OrderFormRadio {...register("paymentMethod")} value={PAYMENT_METHOD.CARD} label="Картой онлайн" />
+            <OrderFormRadio {...register("paymentMethod")} value={PAYMENT_METHOD.CARD} label="Онлайн-платеж" />
+            <OrderFormRadio
+              {...register("paymentMethod")}
+              value="cash"
+              label="Наличными при получении"
+            />
+          </div>
+        </div> */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Комментарий к заказу</h2>
+          <TextArea id="comment" {...register("comment")} />
         </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Комментарий к заказу</h2>
-
-        <textarea
-          {...register("comment")}
-          rows={4}
-          placeholder="Дополнительная информация для курьера или магазина"
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white resize-none"
-        />
-      </div>
-
-      <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Оформление..." : "Оформить заказ"}
-      </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="w-full"
+          disabled={isSubmitting}>
+          {isSubmitting ? "Оформление..." : "Оформить заказ"}
+        </Button>
+      </fieldset>
     </form>
   );
 }

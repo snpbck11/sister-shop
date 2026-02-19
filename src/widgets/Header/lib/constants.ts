@@ -41,14 +41,18 @@ export const categoriesLinks: IDropdownItem[] = [
 export const helpLinks: IDropdownItem[] = [
   {
     title: "О нас",
-    href: "/collections/about-us",
+    href: "/about-us",
   },
   {
     title: "Связаться с нами",
-    href: "/collections/contact",
+    href: "/contact",
   },
   {
     title: "Доставка и возврат",
-    href: "/collections/delivery",
+    href: "/delivery",
+  },
+  {
+    title: "Реквизиты",
+    href: "/requisits",
   },
 ];
